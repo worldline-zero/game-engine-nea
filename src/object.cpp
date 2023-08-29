@@ -1,0 +1,110 @@
+#include "../inc/object.hpp"
+
+namespace sdf {
+
+  extern unsigned int objectID;
+
+  unsigned int objectID = 0;
+
+
+
+  float Base_object::get_scale_factor_svd(glm::mat4 t) {
+    t = glm::inverse(t);
+    float sx = glm::length(glm::vec3(t[0][0], t[0][1], t[0][2]));
+    float sy = glm::length(glm::vec3(t[1][0], t[1][1], t[1][2]));
+    float sz = glm::length(glm::vec3(t[2][0], t[2][1], t[2][2]));
+    return std::min(sx, std::min(sy, sz));
+  }
+
+
+
+  Sphere::Sphere() : radius(0.5f), center(glm::vec3(0.0f)) {
+    //glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(radius));
+    //t = glm::translate(t, glm::vec3(0.0f));
+    glm::mat4 t = glm::translate(glm::mat4(1.0f), center);
+    this->transformation = glm::scale(t, glm::vec3(radius));
+    this->inverse_scale_trans = glm::scale(t, glm::vec3(1.0f/radius));
+    this->type = Sphere_id;
+    this->ID = objectID;
+    this->mesh = Mesh("./res/sphere.obj");
+    objectID++;
+  }
+
+
+  Sphere::Sphere(float r, glm::vec3 c) : radius(r), center(c) {
+    //glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(r));
+    //t = glm::translate(t, c);
+    glm::mat4 t1 = glm::translate(glm::mat4(1.0f), c);
+    glm::mat4 t2 = glm::translate(glm::mat4(1.0f), c);
+    this->transformation = glm::scale(t1, glm::vec3(r));
+    this->inverse_scale_trans = glm::scale(t2, glm::vec3(1.0f/r));
+    this->type = Sphere_id;
+    this->ID = objectID;
+    this->mesh = Mesh("./res/sphere.obj");
+    objectID++;
+  }
+
+  void Sphere::details() {
+    std::cout 
+      << "Sphere details:\n"
+      << "ID: " << ID << "\n"
+      << "radius: " << radius << "\n"
+      << "center: " << center.x << " " << center.y << " " << center.z << std::endl;
+  }
+
+  float Sphere::dist(glm::vec3 pos) {
+    return glm::length(pos - this->center) - this->radius;
+  }
+
+
+
+  Cuboid::Cuboid() : half_dimensions(glm::vec3(0.5f)), center(glm::vec3(0.0f)), rotation(glm::vec3(1.0f)), angle(0.0f) {
+    glm::mat4 t1 = glm::translate(glm::mat4(1.0f), center);
+    t1 = glm::scale(t1, half_dimensions);
+    t1 = glm::rotate(t1, glm::radians(angle), rotation);
+    glm::mat4 t2 = glm::scale(glm::mat4(1.0f), 1.0f/half_dimensions);
+    t2 = glm::rotate(t2, glm::radians(angle), rotation);
+    t2 = glm::translate(t2, center);
+    this->transformation = t1;
+    this->inverse_scale_trans = t2;
+    this->type = Cuboid_id;
+    this->ID = objectID;
+    this->mesh = Mesh("./res/cube.obj");
+    objectID++;
+  }
+
+  Cuboid::Cuboid(glm::vec3 d, glm::vec3 c, glm::vec3 r, float a) : half_dimensions(d), center(c), rotation(r), angle(a) {
+    glm::mat4 t1 = glm::translate(glm::mat4(1.0f), c);
+    t1 = glm::scale(t1, d);
+    t1 = glm::rotate(t1, glm::radians(-a), r);
+    glm::mat4 t2 = glm::scale(glm::mat4(1.0f), 1.0f/d);
+    t2 = glm::rotate(t2, glm::radians(a), r);
+    t2 = glm::translate(t2, c);
+    this->transformation = t1;
+    this->inverse_scale_trans = t2;
+    this->type = Cuboid_id;
+    this->ID = objectID;
+    this->mesh = Mesh("./res/cube.obj");
+    objectID++;
+  }
+
+  void Cuboid::details() {
+    std::cout 
+      << "Cuboid details:\n"
+      << "ID: " << ID << "\n"
+      << "half dimensions: " << half_dimensions.x << " " << half_dimensions.y << " " << half_dimensions.z << "\n"
+      << "center: " << center.x << " " << center.y << " " << center.z << std::endl;
+  }
+
+  float Cuboid::dist(glm::vec3 pos) {
+    pos = glm::vec3(this->inverse_scale_trans * glm::vec4(-pos, 1.0f));
+    glm::vec3 q = glm::abs(pos) - 1.0f;
+    return (glm::length(glm::max(q, 0.0f)) + std::min(std::max(q.x, std::max(q.y, q.z)), 0.0f)) * this->get_scale_factor_svd(this->transformation);
+  }
+
+
+  Capsule::Capsule() : base(glm::vec3(0.0f)), tip(glm::vec3(2.0f)), radius(0.5f) {}
+
+  Capsule::Capsule(glm::vec3 b, glm::vec3 t, float r) : base(b), tip(t), radius(r) {}
+
+}

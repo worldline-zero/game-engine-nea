@@ -1,0 +1,67 @@
+#ifndef EVENTS_H
+#define EVENTS_H
+
+#include <iostream>
+#include <glm/glm.hpp>
+#include <chrono>
+#include <functional>
+#include <ratio>
+#include <vector>
+
+#include "./player.hpp"
+#include "./scene.hpp"
+#include "./renderer_state.hpp"
+
+#define PRESSED(A, B) (glfwGetKey(B, A) == GLFW_PRESS)
+
+namespace event {
+
+  namespace game {
+
+    void process_input(Player &p, sdf::Scene &s, GLFWwindow *w);
+
+    void key_esc(Player &p, sdf::Scene &s, GLFWwindow *w);
+
+    void key_w(Player &p, sdf::Scene &s, GLFWwindow *w);
+
+    void key_a(Player &p, sdf::Scene &s, GLFWwindow *w);
+
+    void key_s(Player &p, sdf::Scene &s, GLFWwindow *w);
+
+    void key_d(Player &p, sdf::Scene &s, GLFWwindow *w);
+
+    void key_space(Player &p, sdf::Scene &s, GLFWwindow *w);
+
+    void key_lshift(Player &p, sdf::Scene &s, GLFWwindow *w);
+
+    void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+
+  }
+
+  class timed_job {
+
+    public:
+
+      std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+     
+      std::chrono::duration<unsigned int, std::milli> job_duration;
+
+      int job_duration_ticks;
+
+      bool run_forever;
+
+      std::function<void(unsigned int, unsigned int)> job;
+
+      timed_job(std::function<void(unsigned int, unsigned int)> job_param, const int N, std::vector<timed_job*> &job_list);
+
+      bool check_expired();
+
+      void run();
+
+  };
+
+  void address_active_jobs(std::vector<timed_job*> &all_active_jobs);
+
+}
+
+#endif
