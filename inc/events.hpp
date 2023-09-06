@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <glm/glm.hpp>
+#include <array>
 #include <chrono>
 #include <functional>
 #include <ratio>

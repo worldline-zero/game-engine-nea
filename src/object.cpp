@@ -21,9 +21,12 @@ namespace sdf {
   Sphere::Sphere() : radius(0.5f), center(glm::vec3(0.0f)) {
     //glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(radius));
     //t = glm::translate(t, glm::vec3(0.0f));
-    glm::mat4 t = glm::translate(glm::mat4(1.0f), center);
-    this->transformation = glm::scale(t, glm::vec3(radius));
-    this->inverse_scale_trans = glm::scale(t, glm::vec3(1.0f/radius));
+    //glm::mat4 t = glm::translate(glm::mat4(1.0f), center);
+    glm::mat4 tr = glm::translate(glm::mat4(1.0f), center);
+    glm::mat4 sc = glm::scale(glm::mat4(1.0f), glm::vec3(radius));
+    glm::mat4 is = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f/radius));
+    this->transformation = tr * sc;
+    this->inverse_scale_trans = tr * is;
     this->type = Sphere_id;
     this->ID = objectID;
     this->mesh = Mesh("./res/sphere.obj");
@@ -34,10 +37,13 @@ namespace sdf {
   Sphere::Sphere(float r, glm::vec3 c) : radius(r), center(c) {
     //glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(r));
     //t = glm::translate(t, c);
-    glm::mat4 t1 = glm::translate(glm::mat4(1.0f), c);
-    glm::mat4 t2 = glm::translate(glm::mat4(1.0f), c);
-    this->transformation = glm::scale(t1, glm::vec3(r));
-    this->inverse_scale_trans = glm::scale(t2, glm::vec3(1.0f/r));
+    //glm::mat4 t1 = glm::translate(glm::mat4(1.0f), c);
+    //glm::mat4 t2 = glm::translate(glm::mat4(1.0f), c);
+    glm::mat4 tr = glm::translate(glm::mat4(1.0f), center);
+    glm::mat4 sc = glm::scale(glm::mat4(1.0f), glm::vec3(radius));
+    glm::mat4 is = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f/radius));
+    this->transformation = tr * sc;
+    this->inverse_scale_trans = tr * is;
     this->type = Sphere_id;
     this->ID = objectID;
     this->mesh = Mesh("./res/sphere.obj");
@@ -59,14 +65,21 @@ namespace sdf {
 
 
   Cuboid::Cuboid() : half_dimensions(glm::vec3(0.5f)), center(glm::vec3(0.0f)), rotation(glm::vec3(1.0f)), angle(0.0f) {
+    /*
     glm::mat4 t1 = glm::translate(glm::mat4(1.0f), center);
     t1 = glm::scale(t1, half_dimensions);
     t1 = glm::rotate(t1, glm::radians(angle), rotation);
     glm::mat4 t2 = glm::scale(glm::mat4(1.0f), 1.0f/half_dimensions);
     t2 = glm::rotate(t2, glm::radians(angle), rotation);
     t2 = glm::translate(t2, center);
-    this->transformation = t1;
-    this->inverse_scale_trans = t2;
+    */
+    glm::mat4 tr = glm::translate(glm::mat4(1.0f), center);
+    glm::mat4 ro = glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotation);
+    glm::mat4 sc = glm::scale(glm::mat4(1.0f), half_dimensions);
+    glm::mat4 is = glm::scale(glm::mat4(1.0f), 1.0f/half_dimensions);
+
+    this->transformation = tr * ro * sc;
+    this->inverse_scale_trans = tr * ro * is;
     this->type = Cuboid_id;
     this->ID = objectID;
     this->mesh = Mesh("./res/cube.obj");
@@ -80,8 +93,14 @@ namespace sdf {
     glm::mat4 t2 = glm::scale(glm::mat4(1.0f), 1.0f/d);
     t2 = glm::rotate(t2, glm::radians(a), r);
     t2 = glm::translate(t2, c);
-    this->transformation = t1;
-    this->inverse_scale_trans = t2;
+
+    glm::mat4 tr = glm::translate(glm::mat4(1.0f), center);
+    glm::mat4 ro = glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotation);
+    glm::mat4 sc = glm::scale(glm::mat4(1.0f), half_dimensions);
+    glm::mat4 is = glm::scale(glm::mat4(1.0f), 1.0f/half_dimensions);
+
+    this->transformation = tr * ro * sc;
+    this->inverse_scale_trans = tr * ro * is;
     this->type = Cuboid_id;
     this->ID = objectID;
     this->mesh = Mesh("./res/cube.obj");

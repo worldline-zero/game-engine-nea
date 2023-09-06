@@ -5,8 +5,9 @@
 
 #include "../inc/start_opengl.hpp"
 
-#include "../inc/object.hpp"
+#include "../inc/scene.hpp"
 #include "../inc/physics.hpp"
+#include "../inc/renderer_state.hpp"
 
 namespace event {
   namespace game {
@@ -28,16 +29,19 @@ class Player {
 
     float fov; // field of view in degrees
     
-    float speed; // in units per second (will be adjusted for frame times)
-    
     glm::vec3 facing; // normalized vector. seperate to speed because this needs to be used to calculate the lookat matrix
-    glm::vec3 body_direction;
+    glm::vec3 velocity;
     float yaw, pitch, lastY, lastX;
+
+    float max_speed;
 
 
     glm::vec3 position; // player's current position
     glm::vec3 previous_position; // players position last frame
     glm::vec3 up; // the up vector. probably could be const/literal but incase i decide to do wacky shit with gravity in the future ill keep it
+
+    sdf::Capsule player_bounds;
+    sdf::Capsule previous_bounds;
 
     Player(glm::vec3 spawn_point);
 
@@ -45,7 +49,15 @@ class Player {
 
     glm::mat4 get_proj();
 
-    void update_dir();
+    void update_dir(unsigned int ct, unsigned int tt);
+
+    void update_bounds(unsigned int ct, unsigned int tt);
+
+    void update_position(unsigned int ct, unsigned int tt);
+
+    physics::collision_info test_collision(sdf::Scene &scene);
+
+    void collision_response(sdf::Scene &scene);
 
 };
 

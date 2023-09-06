@@ -12,6 +12,10 @@ namespace physics {
     return p0 + (std::min(std::max(t, 0.0f), 1.0f) * line);
   }
 
+  glm::vec3 project_on_plane(glm::vec3 u, glm::vec3 n) {
+    return u - (((glm::dot(u, n))/(glm::dot(n, n))) * n);
+  }
+
   collision_info sphere_triangle_collision(glm::vec3 center, float radius, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2) {
     collision_info result;
     glm::vec3 N = tri_plane_normal(p0, p1, p2);
@@ -103,9 +107,9 @@ namespace physics {
 
     for (int i = 0; i<mesh.vertices.size(); i+=3) {
       //std::cout << i << std::endl;
-      glm::vec3 p0 = glm::vec3(glm::vec4(mesh.vertices[i].position, 0.0f) * transformation);
-      glm::vec3 p1 = glm::vec3(glm::vec4(mesh.vertices[i+1].position, 0.0f) * transformation);
-      glm::vec3 p2 = glm::vec3(glm::vec4(mesh.vertices[i+2].position, 0.0f) * transformation);
+      glm::vec3 p0 = glm::vec3(transformation * glm::vec4(mesh.vertices[i].position, 1.0f));
+      glm::vec3 p1 = glm::vec3(transformation * glm::vec4(mesh.vertices[i+1].position, 1.0f));
+      glm::vec3 p2 = glm::vec3(transformation * glm::vec4(mesh.vertices[i+2].position, 1.0f));
 
       glm::vec3 N = tri_plane_normal(p0, p1, p2);
 

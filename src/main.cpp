@@ -19,7 +19,7 @@ int main() {
 
   GLFWwindow* window = loader::load_gl();
   glfwSetCursorPosCallback(window, event::game::mouse_callback);
-  glfwSwapInterval(0);
+  //glfwSwapInterval(0);
 
   if (window == NULL) {
     std::cerr << "error: window not initialised" << std::endl;
@@ -34,7 +34,7 @@ int main() {
 
   sdf::bounding_sphere test_volume(glm::vec3(2.0f, 0.0f, 0.0f), 4.0f);
 
-  sdf::Cuboid test_cube1(glm::vec3(1.0f), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 30.0f);
+  sdf::Cuboid test_cube1(glm::vec3(1.0f), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 40.0f);
   sdf::Cuboid test_cube2;
 
   sdf::Sphere test_sphere(1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -47,7 +47,7 @@ int main() {
 
   test_scene.add_volume(test_volume);
 
-  Player player(glm::vec3(0.0f));
+  Player player(glm::vec3(5.0f));
 
   std::vector<event::timed_job*> test_jobs;
 
@@ -56,17 +56,17 @@ int main() {
   };
 
   event::timed_job test_event(test_lambda, 1000, test_jobs);
-  event::timed_job frame_info_job(render::print_frame_info, -1, test_jobs);
+  //event::timed_job frame_info_job(render::print_frame_info, -1, test_jobs);
   event::timed_job render_state_update_job(render::update_render_state, -1, test_jobs);
-
 
   while (!glfwWindowShouldClose(window)) {
 
-    player.update_dir();
-
-    player.speed = renderer_state.frame_time * 2.0f;
+    player.update_dir(1, 2);
+    player.update_bounds(1, 2);
 
     event::game::process_input(player, test_scene, window);
+
+    player.collision_response(test_scene);
     
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -80,12 +80,10 @@ int main() {
 
     event::address_active_jobs(test_jobs);
 
-    sdf::Capsule test_capsule(player.position - glm::vec3(0.0f, 0.5f, 0.0f), player.position + glm::vec3(0.0f, 0.5f, 0.0f), 0.2f);
+    //std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl;
 
-    //volatile auto collision_test_result = physics::capsule_mesh_collision_CPU(test_capsule, test_cube2.mesh, test_cube2.transformation);
-
-    //std::cout << collision_test_result.hit << std::endl;
-
+    //std::cout << test_sphere2.dist(player.position) << std::endl;
+  
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

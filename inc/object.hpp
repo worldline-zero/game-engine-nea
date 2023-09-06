@@ -110,6 +110,16 @@ namespace sdf {
     
     Capsule();
     Capsule(glm::vec3 b, glm::vec3 t, float r);
+
+    constexpr Capsule &operator=(const Capsule &other) {
+
+      this->base = other.base;
+      this->tip = other.tip;
+      this->radius = other.radius;
+
+      return *this;
+
+    }
   };
 
 } // namespace sdf
