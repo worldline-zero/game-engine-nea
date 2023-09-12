@@ -15,25 +15,25 @@
 
 #define PRESSED(A, B) (glfwGetKey(B, A) == GLFW_PRESS)
 
+#define RELEASED(A, B) (glfwGetKey(B, A) == GLFW_RELEASE)
+
 namespace event {
 
   namespace game {
 
     void process_input(Player &p, sdf::Scene &s, GLFWwindow *w);
 
-    void key_esc(Player &p, sdf::Scene &s, GLFWwindow *w);
+    glm::vec3 key_w(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d);
 
-    void key_w(Player &p, sdf::Scene &s, GLFWwindow *w);
+    glm::vec3 key_a(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d);
 
-    void key_a(Player &p, sdf::Scene &s, GLFWwindow *w);
+    glm::vec3 key_s(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d);
 
-    void key_s(Player &p, sdf::Scene &s, GLFWwindow *w);
+    glm::vec3 key_d(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d);
 
-    void key_d(Player &p, sdf::Scene &s, GLFWwindow *w);
+    glm::vec3 key_space(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d);
 
-    void key_space(Player &p, sdf::Scene &s, GLFWwindow *w);
-
-    void key_lshift(Player &p, sdf::Scene &s, GLFWwindow *w);
+    glm::vec3 key_lshift(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d);
 
     void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 

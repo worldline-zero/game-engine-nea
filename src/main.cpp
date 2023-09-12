@@ -19,7 +19,7 @@ int main() {
 
   GLFWwindow* window = loader::load_gl();
   glfwSetCursorPosCallback(window, event::game::mouse_callback);
-  //glfwSwapInterval(0);
+  glfwSwapInterval(0);
 
   if (window == NULL) {
     std::cerr << "error: window not initialised" << std::endl;
@@ -55,18 +55,17 @@ int main() {
     std::cout << (float)ct / (float)tt << std::endl;
   };
 
-  event::timed_job test_event(test_lambda, 1000, test_jobs);
+  //event::timed_job test_event(test_lambda, 1000, test_jobs);
   //event::timed_job frame_info_job(render::print_frame_info, -1, test_jobs);
   event::timed_job render_state_update_job(render::update_render_state, -1, test_jobs);
 
   while (!glfwWindowShouldClose(window)) {
 
     player.update_dir(1, 2);
-    player.update_bounds(1, 2);
 
     event::game::process_input(player, test_scene, window);
 
-    player.collision_response(test_scene);
+    player.update_position(test_scene);
     
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -80,7 +79,7 @@ int main() {
 
     event::address_active_jobs(test_jobs);
 
-    //std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl;
+    std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl;
 
     //std::cout << test_sphere2.dist(player.position) << std::endl;
   

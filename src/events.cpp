@@ -4,6 +4,15 @@ namespace event {
 
   namespace game {
 
+    enum directions {
+      FORWARDS,
+      BACKWARDS,
+      UP,
+      DOWN,
+      RIGHT,
+      LEFT
+    };
+
     extern struct rotation_state player_rotation_state;
 
     rotation_state player_rotation_state;
@@ -26,7 +35,90 @@ namespace event {
 
       std::array<glm::vec3, 6> directions = { forwards, backwards, up, down, right, left };
 
+      p.velocity += key_w(p, s, w, directions);
+      p.velocity += key_a(p, s, w, directions);
+      p.velocity += key_s(p, s, w, directions);
+      p.velocity += key_d(p, s, w, directions);
+      p.velocity += key_space(p, s, w, directions);
+      p.velocity += key_lshift(p, s, w, directions);
+      
+      //std::cout << p.velocity.x << " " << p.velocity.y << " " << p.velocity.z << std::endl;
+      
+      if (glm::length(p.velocity) > p.max_speed) {
+        p.velocity = (p.velocity * (p.max_speed / glm::length(p.velocity)));
+      }
+
+      //std::cout << glm::length(p.velocity) << std::endl;
+
     }
+
+    glm::vec3 key_w(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
+      glm::vec3 new_velocity = glm::vec3(0.0f);
+      if (PRESSED(GLFW_KEY_W ,w)) {
+        new_velocity = (float)p.direction_counter[FORWARDS] * d[FORWARDS];
+        p.direction_counter[FORWARDS]++;
+      } else if (RELEASED(GLFW_KEY_W, w)) {
+        p.direction_counter[FORWARDS] = 1;
+      }
+      return new_velocity;
+    }
+
+    glm::vec3 key_a(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
+      glm::vec3 new_velocity = glm::vec3(0.0f);
+      if (PRESSED(GLFW_KEY_A, w)) {
+        new_velocity = (float)p.direction_counter[LEFT] * d[LEFT];
+        p.direction_counter[LEFT]++;
+      } else if (RELEASED(GLFW_KEY_A, w)) {
+        p.direction_counter[LEFT] = 1;
+      }
+      return new_velocity;
+    }
+
+    glm::vec3 key_s(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
+      glm::vec3 new_velocity = glm::vec3(0.0f);
+      if (PRESSED(GLFW_KEY_S ,w)) {
+        new_velocity = (float)p.direction_counter[BACKWARDS] * d[BACKWARDS];
+        p.direction_counter[BACKWARDS]++;
+      } else if (RELEASED(GLFW_KEY_S, w)) {
+        p.direction_counter[BACKWARDS] = 1;
+      }
+      return new_velocity;
+    }
+
+    glm::vec3 key_d(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
+      glm::vec3 new_velocity = glm::vec3(0.0f);
+      if (PRESSED(GLFW_KEY_D, w)) {
+        new_velocity = (float)p.direction_counter[RIGHT] * d[RIGHT];
+        p.direction_counter[RIGHT]++;
+      } else if (RELEASED(GLFW_KEY_D, w)) {
+        p.direction_counter[RIGHT] = 1;
+      }
+      return new_velocity;
+    }
+
+    glm::vec3 key_space(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
+      glm::vec3 new_velocity = glm::vec3(0.0f);
+      if (PRESSED(GLFW_KEY_SPACE, w)) {
+        new_velocity = (float)p.direction_counter[UP] * d[UP];
+        p.direction_counter[UP]++;
+      } else if (RELEASED(GLFW_KEY_SPACE, w)) {
+        p.direction_counter[UP] = 1;
+      }
+      return new_velocity;
+    }
+
+    glm::vec3 key_lshift(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
+      glm::vec3 new_velocity = glm::vec3(0.0f);
+      if (PRESSED(GLFW_KEY_LEFT_SHIFT, w)) {
+        new_velocity = (float)p.direction_counter[DOWN] * d[DOWN];
+        p.direction_counter[DOWN]++;
+      } else if (RELEASED(GLFW_KEY_LEFT_SHIFT, w)) {
+        p.direction_counter[DOWN] = 1;
+      }
+      return new_velocity;
+    }
+
+
 
 /*
 

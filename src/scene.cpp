@@ -70,7 +70,7 @@ namespace sdf {
   }
 
   float Scene::dist(glm::vec3 pos) {
-    float min_dist = 2147483647.0f;
+    float min_dist = 2147483647.0f; // there shouldnt be a player this far away from any object
     float vol_dist = 2147483647.0f;
     bool box_intersect = false;
     for (const auto &[vol_id, vol] : this->volumes) {

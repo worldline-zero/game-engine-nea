@@ -16,9 +16,8 @@ namespace physics {
     return u - (((glm::dot(u, n))/(glm::dot(n, n))) * n);
   }
 
-  collision_info sphere_triangle_collision(glm::vec3 center, float radius, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2) {
+  collision_info sphere_triangle_collision(glm::vec3 center, float radius, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 N) {
     collision_info result;
-    glm::vec3 N = tri_plane_normal(p0, p1, p2);
     float dist_to_plane = glm::dot(center - p0, N);
     if (dist_to_plane > radius || dist_to_plane < -radius) {
       result.hit = false;
@@ -82,7 +81,7 @@ namespace physics {
         }
         float len = glm::length(intersection_vector);
         result.hit = true;
-        result.depth = radius - len;
+        result.depth = radius - len + 0.015f;
         result.surface_normal = N;
         result.penetration_normal = intersection_vector / len;
         return result;
@@ -95,12 +94,13 @@ namespace physics {
     }
   }
 
-  collision_info capsule_mesh_collision_CPU(const ::sdf::Capsule capsule, const ::sdf::Mesh mesh, const glm::mat4 transformation) {
+  std::vector<collision_info> capsule_mesh_collision_CPU(const ::sdf::Capsule capsule, const ::sdf::Mesh mesh, const glm::mat4 transformation) {
     glm::vec3 capsule_normal = glm::normalize(capsule.tip - capsule.base);
     glm::vec3 line_end_offset = capsule_normal * capsule.radius;
     glm::vec3 capsule_A = capsule.base + line_end_offset;
     glm::vec3 capsule_B = capsule.tip - line_end_offset;
 
+    std::vector<collision_info> sphere_tests;
     collision_info sphere_test;
 
     //std::cout << "mesh size in vertices: " << mesh.vertices.size() << std::endl;
@@ -162,18 +162,86 @@ namespace physics {
       //  << "p1: " << p1.x << " " << p1.y << " " << p1.z << "\n"
       //  << "p2: " << p2.x << " " << p2.y << " " << p2.z << "\n";
 
-      sphere_test = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2);
+      sphere_test = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, N);
 
       if (sphere_test.hit == true) {
-        return sphere_test;
+        sphere_tests.push_back(sphere_test);
       }
         
       //std::cout << std::endl;
 
     } // for loop end
 
-    return sphere_test;
+    return sphere_tests;
 
+  }
+
+  std::vector<collision_info> capsule_scene_collision(const ::sdf::Capsule capsule, const ::sdf::Scene scene) {
+
+    std::vector<sdf::Mesh> meshes;
+    std::vector<glm::mat4> transformations;
+
+    for (const auto &[vol_id, vol] : scene.volumes) {
+      std::visit([&meshes, &transformations](auto v) mutable {
+        for (const auto &[obj_id, obj] : v.children) {
+          std::visit([&meshes, &transformations](auto o) mutable {
+            meshes.push_back(o.mesh);
+            transformations.push_back(o.transformation);
+          }, obj);
+        }
+      }, vol);
+    }
+
+    std::vector<physics::collision_info> collision_test_result;
+
+    std::vector<collision_info> collisions;
+
+    for (int i = 0; i<meshes.size(); i++) {
+      collision_test_result = physics::capsule_mesh_collision_CPU(capsule, meshes[i], transformations[i]);
+      collisions.insert(collisions.end(), collision_test_result.begin(), collision_test_result.end());
+    }
+
+    return collisions;
+
+  }
+
+  glm::vec3 collision_response(glm::vec3 velocity, const std::vector<collision_info> tests) {
+    glm::vec3 normal = glm::vec3(0.0f);
+    bool hit = false;
+    float depth = 0.0f;
+    for (const auto &i : tests) {
+      hit |= i.hit;
+      if (hit) {
+        depth = std::min(i.depth, depth);
+        normal += i.penetration_normal;
+      }
+    }
+
+    if (hit == true) {
+      if (glm::length(velocity) < 0.001f || glm::length(normal) < 0.001f ) {
+        return glm::vec3(0.0f);
+      }
+      normal = glm::normalize(normal);
+      std::cout << normal.x << " " << normal.y << " " << normal.z << std::endl;
+      glm::vec3 reduced_velocity = velocity * ((glm::length(velocity) - depth - 0.015f) / glm::length(velocity));
+      if (glm::length(reduced_velocity) < 0.015f) {
+        reduced_velocity = glm::vec3(0.0f);
+      }
+      glm::vec3 leftover_velocity = velocity - reduced_velocity;
+      if (glm::dot(normal, velocity) > 0.0f) {
+        return velocity;
+      } else {
+        leftover_velocity = project_on_plane(leftover_velocity, normal);
+      }
+
+      return reduced_velocity + leftover_velocity;
+    } else {
+      return velocity;
+    }
+  }
+
+  glm::vec3 calculate_drag(glm::vec3 v) {
+    return v * 0.75f;
   }
 
 }

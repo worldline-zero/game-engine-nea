@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <glm/glm.hpp>
+#include <array>
 
 #include "../inc/start_opengl.hpp"
 
@@ -35,6 +36,8 @@ class Player {
 
     float max_speed;
 
+    std::array<unsigned int, 6> direction_counter;
+
 
     glm::vec3 position; // player's current position
     glm::vec3 previous_position; // players position last frame
@@ -53,11 +56,7 @@ class Player {
 
     void update_bounds(unsigned int ct, unsigned int tt);
 
-    void update_position(unsigned int ct, unsigned int tt);
-
-    physics::collision_info test_collision(sdf::Scene &scene);
-
-    void collision_response(sdf::Scene &scene);
+    void update_position(sdf::Scene scene);
 
 };
 
