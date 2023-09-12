@@ -81,7 +81,7 @@ namespace physics {
         }
         float len = glm::length(intersection_vector);
         result.hit = true;
-        result.depth = radius - len + 0.015f;
+        result.depth = radius - len;
         result.surface_normal = N;
         result.penetration_normal = intersection_vector / len;
         return result;
@@ -212,27 +212,27 @@ namespace physics {
     for (const auto &i : tests) {
       hit |= i.hit;
       if (hit) {
-        depth = std::min(i.depth, depth);
+        depth = std::max(i.depth, depth);
         normal += i.penetration_normal;
       }
     }
 
     if (hit == true) {
-      if (glm::length(velocity) < 0.001f || glm::length(normal) < 0.001f ) {
-        return glm::vec3(0.0f);
-      }
       normal = glm::normalize(normal);
       std::cout << normal.x << " " << normal.y << " " << normal.z << std::endl;
+      if (glm::length(velocity) < 0.001f) {
+        return glm::vec3(0.0f);
+      }
       glm::vec3 reduced_velocity = velocity * ((glm::length(velocity) - depth - 0.015f) / glm::length(velocity));
       if (glm::length(reduced_velocity) < 0.015f) {
         reduced_velocity = glm::vec3(0.0f);
       }
       glm::vec3 leftover_velocity = velocity - reduced_velocity;
-      if (glm::dot(normal, velocity) > 0.0f) {
-        return velocity;
-      } else {
+      //if (glm::dot(normal, velocity) > 0.0f) {
+      //  return velocity;
+      //} else {
         leftover_velocity = project_on_plane(leftover_velocity, normal);
-      }
+      //}
 
       return reduced_velocity + leftover_velocity;
     } else {
