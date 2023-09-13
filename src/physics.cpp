@@ -1,5 +1,12 @@
 #include "../inc/physics.hpp"
 
+std::ostream &operator<<(std::ostream &out, const glm::vec3 &vec) {
+  out << "{ " << vec.x << " " << vec.y << " " << vec.z << " }";
+  return out;
+}
+
+extern struct renderer_state_container renderer_state;
+
 namespace physics {
 
   glm::vec3 tri_plane_normal(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2) {
@@ -14,6 +21,10 @@ namespace physics {
 
   glm::vec3 project_on_plane(glm::vec3 u, glm::vec3 n) {
     return u - (((glm::dot(u, n))/(glm::dot(n, n))) * n);
+  }
+
+  float slope_angle(glm::vec3 v1, glm::vec3 v2) {
+    return acos(glm::dot(v1, v2)/(glm::length(v1) * glm::length(v2)));
   }
 
   collision_info sphere_triangle_collision(glm::vec3 center, float radius, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 N) {
@@ -205,7 +216,7 @@ namespace physics {
 
   }
 
-  glm::vec3 collision_response(glm::vec3 velocity, const std::vector<collision_info> tests) {
+  glm::vec3 collision_response(glm::vec3 velocity, const std::vector<collision_info> tests, glm::vec3 up, bool &ground) {
     glm::vec3 normal = glm::vec3(0.0f);
     bool hit = false;
     float depth = 0.0f;
@@ -213,13 +224,17 @@ namespace physics {
       hit |= i.hit;
       if (hit) {
         depth = std::max(i.depth, depth);
-        normal += i.penetration_normal;
+        if ((std::isnan(i.penetration_normal.x) == false)
+            && (std::isnan(i.penetration_normal.y) == false)
+            && (std::isnan(i.penetration_normal.z) == false)) {
+          normal += i.penetration_normal;
+        }
       }
     }
 
     if (hit == true) {
+      //std::cout << normal << std::endl;
       normal = glm::normalize(normal);
-      std::cout << normal.x << " " << normal.y << " " << normal.z << std::endl;
       if (glm::length(velocity) < 0.001f) {
         return glm::vec3(0.0f);
       }
@@ -228,20 +243,41 @@ namespace physics {
         reduced_velocity = glm::vec3(0.0f);
       }
       glm::vec3 leftover_velocity = velocity - reduced_velocity;
-      //if (glm::dot(normal, velocity) > 0.0f) {
-      //  return velocity;
-      //} else {
+      float ground_angle = slope_angle(up, normal);
+      if (glm::dot(normal, velocity) > 0.0f) {
+        return velocity;
+      } else {
         leftover_velocity = project_on_plane(leftover_velocity, normal);
-      //}
+      }
+
+      if (ground_angle < PI/6.0f) {
+        ground = true;
+        return project_on_plane(velocity, normal);
+      } else {
+        ground = false;
+      }
 
       return reduced_velocity + leftover_velocity;
+
     } else {
+
+      ground = false;
+
       return velocity;
+
     }
   }
 
-  glm::vec3 calculate_drag(glm::vec3 v) {
-    return v * 0.75f;
+  glm::vec3 calculate_drag(glm::vec3 v, bool ground) {
+    if (ground) {
+      return v * glm::vec3(0.95f);
+    } else {
+      return v * glm::vec3(0.99f, 0.94f, 0.99f);
+    }
+  }
+
+  float calculate_gravity(unsigned int d) {
+    return d * renderer_state.frame_time;
   }
 
 }

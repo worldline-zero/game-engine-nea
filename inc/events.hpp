@@ -33,8 +33,6 @@ namespace event {
 
     glm::vec3 key_space(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d);
 
-    glm::vec3 key_lshift(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d);
-
     void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 
   }

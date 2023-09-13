@@ -21,6 +21,14 @@ namespace event {
   }
 }
 
+enum directions {
+  FORWARDS,
+  BACKWARDS,
+  UP,
+  DOWN,
+  RIGHT,
+  LEFT
+};
 
 class Player {
 

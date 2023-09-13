@@ -52,7 +52,21 @@ void Player::update_bounds(unsigned int ct, unsigned int tt) {
 void Player::update_position(sdf::Scene scene) {
   this->previous_position = this->position;
 
-  this->velocity = physics::calculate_drag(this->velocity);
+  this->velocity = physics::calculate_drag(this->velocity, this->grounded);
+
+  this->velocity = this->velocity - glm::vec3(0.0f, physics::calculate_gravity(this->direction_counter[DOWN]), 0.0f);
+
+  /*
+  if (glm::length(this->velocity) > this->max_speed) {
+    this->velocity = this->velocity * (this->max_speed / glm::length(this->velocity));
+  }
+  */
+
+  if (!this->grounded) {
+    this->direction_counter[DOWN]++;
+  } else {
+    this->direction_counter[DOWN] = 1;
+  }
 
   glm::vec3 frame_velocity = velocity * renderer_state.frame_time;
 
@@ -62,7 +76,7 @@ void Player::update_position(sdf::Scene scene) {
 
   std::vector<physics::collision_info> collision_tests = physics::capsule_scene_collision(new_bounds, scene);
 
-  glm::vec3 new_velocity = physics::collision_response(frame_velocity, collision_tests);
+  glm::vec3 new_velocity = physics::collision_response(frame_velocity, collision_tests, this->up, this->grounded);
 
   this->position += new_velocity;
   this->previous_bounds = this->player_bounds;

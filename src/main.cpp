@@ -34,11 +34,17 @@ int main() {
 
   sdf::bounding_sphere test_volume(glm::vec3(2.0f, 0.0f, 0.0f), 4.0f);
 
+  sdf::AABB test_aabb(glm::vec3(0.0f), glm::vec3(25.0f, 10.0f, 25.0f));
+
   sdf::Cuboid test_cube1(glm::vec3(1.0f), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 40.0f);
   sdf::Cuboid test_cube2;
 
   sdf::Sphere test_sphere(1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
   sdf::Sphere test_sphere2(0.5f, glm::vec3(-1.5f, 1.0f, 0.0f));
+
+  sdf::Cuboid test_floor(glm::vec3(10.0f, 0.10f, 10.0f), glm::vec3(0.0f, -3.0f, 0.0f), glm::vec3(1.0f), 0.0f);
+
+  test_aabb.add_object(test_floor);
 
   test_volume.add_object(test_cube1);
   test_volume.add_object(test_cube2);
@@ -46,6 +52,7 @@ int main() {
   test_volume.add_object(test_sphere2);
 
   test_scene.add_volume(test_volume);
+  test_scene.add_volume(test_aabb);
 
   Player player(glm::vec3(5.0f));
 
@@ -79,7 +86,9 @@ int main() {
 
     event::address_active_jobs(test_jobs);
 
-    std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl;
+    std::cout << player.position << std::endl;
+
+    //std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl;
 
     //std::cout << test_sphere2.dist(player.position) << std::endl;
   
