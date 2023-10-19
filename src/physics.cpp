@@ -1,10 +1,5 @@
 #include "../inc/physics.hpp"
 
-std::ostream &operator<<(std::ostream &out, const glm::vec3 &vec) {
-  out << "{ " << vec.x << " " << vec.y << " " << vec.z << " }";
-  return out;
-}
-
 extern struct renderer_state_container renderer_state;
 
 namespace physics {
@@ -105,7 +100,7 @@ namespace physics {
     }
   }
 
-  std::vector<collision_info> capsule_mesh_collision_CPU(const ::sdf::Capsule capsule, const ::sdf::Mesh mesh, const glm::mat4 transformation) {
+  collision_info capsule_mesh_collision_CPU(const ::sdf::Capsule capsule, const ::sdf::Mesh mesh, glm::mat4 transformation) {
     glm::vec3 capsule_normal = glm::normalize(capsule.tip - capsule.base);
     glm::vec3 line_end_offset = capsule_normal * capsule.radius;
     glm::vec3 capsule_A = capsule.base + line_end_offset;
@@ -113,6 +108,7 @@ namespace physics {
 
     std::vector<collision_info> sphere_tests;
     collision_info sphere_test;
+    sphere_test.depth = 0.0f;
 
     //std::cout << "mesh size in vertices: " << mesh.vertices.size() << std::endl;
 
@@ -173,7 +169,11 @@ namespace physics {
       //  << "p1: " << p1.x << " " << p1.y << " " << p1.z << "\n"
       //  << "p2: " << p2.x << " " << p2.y << " " << p2.z << "\n";
 
-      sphere_test = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, N);
+      collision_info temp_test = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, N);
+
+      if (temp_test.depth > sphere_test.depth) {
+        sphere_test = temp_test;
+      }
 
       if (sphere_test.hit == true) {
         sphere_tests.push_back(sphere_test);
@@ -183,33 +183,30 @@ namespace physics {
 
     } // for loop end
 
-    return sphere_tests;
+    return sphere_test;
 
   }
 
-  std::vector<collision_info> capsule_scene_collision(const ::sdf::Capsule capsule, const ::sdf::Scene scene) {
-
-    std::vector<sdf::Mesh> meshes;
-    std::vector<glm::mat4> transformations;
-
-    for (const auto &[vol_id, vol] : scene.volumes) {
-      std::visit([&meshes, &transformations](auto v) mutable {
-        for (const auto &[obj_id, obj] : v.children) {
-          std::visit([&meshes, &transformations](auto o) mutable {
-            meshes.push_back(o.mesh);
-            transformations.push_back(o.transformation);
-          }, obj);
-        }
-      }, vol);
-    }
-
-    std::vector<physics::collision_info> collision_test_result;
+  std::vector<collision_info> capsule_scene_collision(const ::sdf::Capsule capsule, sdf::Scene &scene) {
 
     std::vector<collision_info> collisions;
 
-    for (int i = 0; i<meshes.size(); i++) {
-      collision_test_result = physics::capsule_mesh_collision_CPU(capsule, meshes[i], transformations[i]);
-      collisions.insert(collisions.end(), collision_test_result.begin(), collision_test_result.end());
+    for (auto &[vol_id, vol] : scene.volumes) {
+      std::visit([&collisions, &capsule](auto &v) mutable {
+        for (auto &[obj_id, obj] : v.children) {
+          std::visit([&collisions, &capsule](auto &o) mutable {
+            auto collision_test_result = physics::capsule_mesh_collision_CPU(capsule, o.mesh, o.transformation);
+            if (o.solid) {
+              collisions.push_back(collision_test_result);
+            }
+            //for (const auto &c:collision_test_result) {
+              if (collision_test_result.hit) {
+                o.collision_behaviour(collision_test_result);
+              }
+            //}
+          }, obj);
+        }
+      }, vol);
     }
 
     return collisions;
@@ -217,24 +214,28 @@ namespace physics {
   }
 
   glm::vec3 collision_response(glm::vec3 velocity, const std::vector<collision_info> tests, glm::vec3 up, bool &ground) {
+    glm::vec3 modified_velocity = velocity;
+    if (glm::length(velocity) > 9.0f/renderer_state.frame_time) {
+      modified_velocity = glm::normalize(velocity) * 9.0f;
+    }
     glm::vec3 normal = glm::vec3(0.0f);
     bool hit = false;
     float depth = 0.0f;
     for (const auto &i : tests) {
       hit |= i.hit;
-      if (hit) {
-        depth = std::max(i.depth, depth);
-        if ((std::isnan(i.penetration_normal.x) == false)
-            && (std::isnan(i.penetration_normal.y) == false)
-            && (std::isnan(i.penetration_normal.z) == false)) {
-          normal += i.penetration_normal;
-        }
+      if (i.hit && (i.penetration_normal == i.penetration_normal)) {
+        depth = std::max(std::abs(i.depth), depth);
+        normal += i.penetration_normal;
       }
     }
 
     if (hit == true) {
       //std::cout << normal << std::endl;
-      normal = glm::normalize(normal);
+      if (glm::length(normal) <= EPSILON) {
+        return glm::vec3(0.0f);
+      } else {
+        normal = glm::normalize(normal);
+      }
       if (glm::length(velocity) < 0.001f) {
         return glm::vec3(0.0f);
       }
@@ -244,20 +245,20 @@ namespace physics {
       }
       glm::vec3 leftover_velocity = velocity - reduced_velocity;
       float ground_angle = slope_angle(up, normal);
-      if (glm::dot(normal, velocity) > 0.0f) {
+      if (glm::dot(normal, glm::normalize(velocity)) > 0.0f) {
         return velocity;
       } else {
         leftover_velocity = project_on_plane(leftover_velocity, normal);
       }
 
-      if (ground_angle < PI/6.0f) {
+      if (ground_angle < PI/4.0f) {
         ground = true;
         return project_on_plane(velocity, normal);
       } else {
         ground = false;
       }
 
-      return reduced_velocity + leftover_velocity;
+      return reduced_velocity + leftover_velocity + (std::abs(glm::dot(velocity, normal)) * (glm::normalize(reduced_velocity + leftover_velocity) + normal) * glm::length(reduced_velocity + leftover_velocity));
 
     } else {
 
@@ -268,9 +269,9 @@ namespace physics {
     }
   }
 
-  glm::vec3 calculate_drag(glm::vec3 v, bool ground) {
+  glm::vec3 calculate_drag(glm::vec3 v, bool ground, unsigned int counter) {
     if (ground) {
-      return v * glm::vec3(0.95f);
+      return v * glm::vec3(0.95f - (2 * renderer_state.frame_time));
     } else {
       return v * glm::vec3(0.99f, 0.94f, 0.99f);
     }

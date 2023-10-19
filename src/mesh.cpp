@@ -1,5 +1,10 @@
 #include "../inc/mesh.hpp"
 
+std::ostream &operator<<(std::ostream &out, const glm::vec3 &vec) {
+  out << "{ " << vec.x << " " << vec.y << " " << vec.z << " }";
+  return out;
+}
+
 namespace sdf {
 
   Vertex::Vertex() : position(glm::vec3(0.0f)), normal(glm::vec3(0.0f)), uv(glm::vec2(0.0f)) {}

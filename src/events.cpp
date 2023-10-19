@@ -34,7 +34,7 @@ namespace event {
       p.velocity += key_d(p, s, w, directions);
       p.velocity += key_space(p, s, w, directions);
 
-      std::cout << p.velocity << std::endl;
+      //std::cout << p.velocity << std::endl;
      
       /*
       if (glm::length(p.velocity) > p.max_speed) {
@@ -104,7 +104,7 @@ namespace event {
 
     glm::vec3 key_space(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
       glm::vec3 new_velocity = glm::vec3(0.0f);
-      if (PRESSED(GLFW_KEY_SPACE, w) && p.direction_counter[UP] == 1) {
+      if (PRESSED(GLFW_KEY_SPACE, w) && p.direction_counter[UP] == 1/* && p.grounded*/) {
         new_velocity = glm::vec3(0.0f, 20.0f, 0.0f);
         p.direction_counter[UP]++;
         p.direction_counter[DOWN] = 1;
@@ -181,56 +181,5 @@ namespace event {
     }
 
   } // namespace game
-
-
-  timed_job::timed_job(std::function<void(unsigned int, unsigned int)> job_param, const int N, std::vector<timed_job*> &job_list) :
-    start_time(std::chrono::high_resolution_clock::now()),
-    //job_duration(std::chrono::duration<unsigned int, std::milli>(N)),
-    job_duration_ticks(N),
-    job(job_param) {
-
-    job_list.push_back(this);
-    if (N < 0) {
-      this->run_forever = true;
-      this->job_duration = std::chrono::duration<unsigned int, std::milli>(0);
-    } else {
-      this->run_forever = false;
-      this->job_duration = std::chrono::duration<unsigned int, std::milli>((unsigned int)N);
-    }
-  }
-
-  bool timed_job::check_expired() {
-    if (!run_forever) {
-      auto current_time = std::chrono::high_resolution_clock::now();
-      unsigned int total_time_elapsed = std::chrono::duration_cast<std::chrono::duration<unsigned int, std::milli>>(current_time - this->start_time).count();
-      //std::cout << total_time_elapsed << std::endl;
-      if (total_time_elapsed >= this->job_duration.count()) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  void timed_job::run() {
-    this->job(
-        std::chrono::duration_cast<std::chrono::duration<unsigned int, std::milli>>(std::chrono::high_resolution_clock::now() - this->start_time).count(),
-        this->job_duration_ticks
-        );
-  }
-
-  
-  void address_active_jobs(std::vector<timed_job*> &all_active_jobs) {
-    for (size_t i = 0; i<all_active_jobs.size(); i++) {
-      if (all_active_jobs[i]->check_expired() == false) {
-        all_active_jobs[i]->run();
-      } else {
-        all_active_jobs[i]->run();
-        all_active_jobs.erase(all_active_jobs.begin() + i);
-      }
-    }
-  }
 
 }

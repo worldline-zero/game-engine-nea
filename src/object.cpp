@@ -121,6 +121,50 @@ namespace sdf {
     return (glm::length(glm::max(q, 0.0f)) + std::min(std::max(q.x, std::max(q.y, q.z)), 0.0f)) * this->get_scale_factor_svd(this->transformation);
   }
 
+  Arbitrary::Arbitrary(Mesh m) : scale(glm::vec3(1.0f)), position(glm::vec3(0.0f)), rotation(glm::vec3(1.0f)), angle(0.0f), mesh(m) {
+
+    glm::mat4 tr = glm::translate(glm::mat4(1.0f), position);
+    glm::mat4 ro = glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotation);
+    glm::mat4 sc = glm::scale(glm::mat4(1.0f), scale);
+    glm::mat4 is = glm::scale(glm::mat4(1.0f), 1.0f/scale);
+
+    this->transformation = tr * ro * sc;
+    this->inverse_scale_trans = tr * ro * is;
+    this->type = Arbitrary_id;
+    this->ID = objectID;
+    objectID++;
+
+  }
+
+  Arbitrary::Arbitrary(Mesh m, glm::vec3 s, glm::vec3 p, glm::vec3 r, float a) : scale(s), position(p), rotation(r), angle(a), mesh(m) {
+
+    glm::mat4 tr = glm::translate(glm::mat4(1.0f), position);
+    glm::mat4 ro = glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotation);
+    glm::mat4 sc = glm::scale(glm::mat4(1.0f), scale);
+    glm::mat4 is = glm::scale(glm::mat4(1.0f), 1.0f/scale);
+
+    this->transformation = tr * ro * sc;
+    this->inverse_scale_trans = tr * ro * is;
+    this->type = Arbitrary_id;
+    this->ID = objectID;
+    objectID++;
+
+  }
+
+  float Arbitrary::dist(glm::vec3 pos) {
+    float d = 2147483648.0f;
+    for (const Vertex &v:this->mesh.vertices) {
+      d = std::min(d, std::abs(glm::length(pos - glm::vec3(this->transformation * glm::vec4(v.position, 1.0f)))));
+    }
+    return d;
+  }
+
+  void Arbitrary::details() {
+    std::cout
+      << "Arbitrary mesh details:\n"
+      << "position: " << this->position << "\n"
+      << "ID: " << this->ID << std::endl;
+  }
 
   Capsule::Capsule() : base(glm::vec3(0.0f)), tip(glm::vec3(2.0f)), radius(0.5f) {}
 

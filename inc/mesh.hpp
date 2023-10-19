@@ -12,6 +12,19 @@
 
 #include <boost/tokenizer.hpp>
 
+std::ostream &operator<<(std::ostream &out, const glm::vec3 &vec);
+
+namespace physics {
+
+  struct collision_info {
+    bool hit;
+    float depth;
+    glm::vec3 surface_normal;
+    glm::vec3 penetration_normal;
+  };
+
+}
+
 namespace sdf {
 
   struct Vertex {

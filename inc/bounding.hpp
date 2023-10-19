@@ -15,7 +15,7 @@ namespace sdf {
 
     public:
       
-      using child_type = std::variant<Sphere, Cuboid>;
+      using child_type = std::variant<Sphere, Cuboid, Arbitrary>;
 
       using child_container = std::map<unsigned int, child_type>;
 
@@ -36,6 +36,10 @@ namespace sdf {
       void print_children();
 
       void render(Shader &s);
+
+      child_type &operator[](const unsigned int id) {
+        return children[id];
+      }
 
   };
 

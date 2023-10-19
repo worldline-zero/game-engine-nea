@@ -1,0 +1,67 @@
+// level file design ideas //
+
+// version 1: //
+
+// == comment; end comment == //
+
+// declare spawn point
+
+vec3 (spawn);
+
+AABB (vec3 center, vec3 half_d) { // bounding volume declaration //
+  
+  cuboid { // object declaration + flags //
+    vec3 (half_d);
+    vec3 (pos); // attributes //
+    vec3 (rotation);
+    float (angle);
+    bool (solid);
+  } [ flags ]
+
+  sphere {
+    vec3 (pos);
+    float (radius);
+    bool (solid);
+  } [ flags ]
+
+  mesh {
+    string (path);
+    vec3 (pos);
+    vec3 (rotation);
+    float (angle);
+    bool (solid);
+  } [ flags ]
+
+}
+
+BSPHERE (vec3 center, float radius) {
+
+  // objects... //
+
+}
+
+// example file //
+
+spawn ( 0.0 0.0 0.0 ) ;
+
+AABB ( 0.0 4.0 3.0 ) ( 2.0 2.0 2.0 ) {
+
+  cuboid {
+    
+    ( 1.0 1.0 1.0 ) ;
+    ( 1.0 3.0 2.0 ) ;
+    ( 1.0 1.0 1.0 ) ;
+    0.0 ;
+    false ;
+
+  } [ start ]
+
+  sphere {
+    
+    ( 5.0 5.0 5.0 ) ;
+    0.5 ;
+    false ;
+
+  } [ moving ( 5.0 5.0 0.0 ) 2.5 , end ]
+
+}

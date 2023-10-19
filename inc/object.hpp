@@ -4,10 +4,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <functional>
+#include <optional>
 
 #include "./mesh.hpp"
 
 #include "./shader.hpp"
+
+#include "./timed_job.hpp"
 
 #define EPSILON 0.001f
 
@@ -17,7 +21,8 @@ namespace sdf {
     AABB_id,
     bounding_sphere_id,
     Sphere_id,
-    Cuboid_id
+    Cuboid_id,
+    Arbitrary_id
   };
 
   class Base_object {
@@ -30,6 +35,14 @@ namespace sdf {
       object_type_id type;
 
       Mesh mesh;
+
+      bool collided = false;
+
+      bool solid = true;
+
+      std::optional<event::timed_job> opt_timed_job = std::nullopt;
+
+      std::function<void(physics::collision_info)> collision_behaviour = [](physics::collision_info c){;};
 
       float get_scale_factor_svd(glm::mat4 t);
 
@@ -97,6 +110,42 @@ namespace sdf {
 
         this->mesh = other.mesh;
 
+        return *this;
+
+      }
+
+  };
+
+  class Arbitrary : public Base_object {
+    
+    public:
+
+      glm::vec3 scale;
+      glm::vec3 position;
+      glm::vec3 rotation;
+      float angle;
+
+      Mesh mesh;
+
+      Arbitrary(Mesh m);
+      Arbitrary(Mesh m, glm::vec3 s, glm::vec3 p, glm::vec3 r, float a);
+
+      float dist(glm::vec3 pos);
+
+      void details();
+
+      constexpr Arbitrary &operator=(const Arbitrary &other) {
+
+        this->scale = other.scale;
+        this->position = other.position;
+        this->rotation = other.rotation;
+        this->angle = other.angle;
+        this->mesh = other.mesh;
+
+        this->transformation = other.transformation;
+        this->inverse_scale_trans = other.inverse_scale_trans;
+        this->type = other.type;
+        
         return *this;
 
       }

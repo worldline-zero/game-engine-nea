@@ -37,30 +37,6 @@ namespace event {
 
   }
 
-  class timed_job {
-
-    public:
-
-      std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
-     
-      std::chrono::duration<unsigned int, std::milli> job_duration;
-
-      int job_duration_ticks;
-
-      bool run_forever;
-
-      std::function<void(unsigned int, unsigned int)> job;
-
-      timed_job(std::function<void(unsigned int, unsigned int)> job_param, const int N, std::vector<timed_job*> &job_list);
-
-      bool check_expired();
-
-      void run();
-
-  };
-
-  void address_active_jobs(std::vector<timed_job*> &all_active_jobs);
-
 }
 
 #endif

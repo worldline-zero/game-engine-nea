@@ -52,7 +52,10 @@ void Player::update_bounds(unsigned int ct, unsigned int tt) {
 void Player::update_position(sdf::Scene scene) {
   this->previous_position = this->position;
 
-  this->velocity = physics::calculate_drag(this->velocity, this->grounded);
+  this->velocity = physics::calculate_drag(this->velocity,
+      this->grounded, std::max(
+        std::max(this->direction_counter[FORWARDS], this->direction_counter[BACKWARDS]),
+        std::max(this->direction_counter[LEFT], this->direction_counter[RIGHT])));
 
   this->velocity = this->velocity - glm::vec3(0.0f, physics::calculate_gravity(this->direction_counter[DOWN]), 0.0f);
 
