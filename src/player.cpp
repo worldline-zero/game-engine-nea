@@ -79,6 +79,16 @@ void Player::update_position(sdf::Scene scene) {
 
   std::vector<physics::collision_info> collision_tests = physics::capsule_scene_collision(new_bounds, scene);
 
+  glm::vec3 object_velocity = glm::vec3(0.0f);
+  for (const auto &ci:collision_tests) {
+    if (ci.hit) {
+      object_velocity += ci.object_velocity;
+      std::cout << ci.object_velocity << std::endl;
+    }
+  }
+  std::cout << std::endl;
+  object_velocity *= renderer_state.frame_time;
+
   glm::vec3 new_velocity = physics::collision_response(frame_velocity, collision_tests, this->up, this->grounded);
 
   this->position += new_velocity;

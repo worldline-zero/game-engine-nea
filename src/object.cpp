@@ -18,7 +18,7 @@ namespace sdf {
 
 
 
-  Sphere::Sphere() : radius(0.5f), center(glm::vec3(0.0f)) {
+  Sphere::Sphere() : radius(0.5f), center(glm::vec3(0.0f)), velocity(glm::vec3(0.0f)) {
     //glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(radius));
     //t = glm::translate(t, glm::vec3(0.0f));
     //glm::mat4 t = glm::translate(glm::mat4(1.0f), center);
@@ -34,7 +34,7 @@ namespace sdf {
   }
 
 
-  Sphere::Sphere(float r, glm::vec3 c) : radius(r), center(c) {
+  Sphere::Sphere(float r, glm::vec3 c) : radius(r), center(c), velocity(glm::vec3(0.0f)) {
     //glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(r));
     //t = glm::translate(t, c);
     //glm::mat4 t1 = glm::translate(glm::mat4(1.0f), c);
@@ -64,7 +64,7 @@ namespace sdf {
 
 
 
-  Cuboid::Cuboid() : half_dimensions(glm::vec3(0.5f)), center(glm::vec3(0.0f)), rotation(glm::vec3(1.0f)), angle(0.0f) {
+  Cuboid::Cuboid() : half_dimensions(glm::vec3(0.5f)), center(glm::vec3(0.0f)), rotation(glm::vec3(1.0f)), angle(0.0f), velocity(glm::vec3(0.0f)) {
     /*
     glm::mat4 t1 = glm::translate(glm::mat4(1.0f), center);
     t1 = glm::scale(t1, half_dimensions);
@@ -86,7 +86,7 @@ namespace sdf {
     objectID++;
   }
 
-  Cuboid::Cuboid(glm::vec3 d, glm::vec3 c, glm::vec3 r, float a) : half_dimensions(d), center(c), rotation(r), angle(a) {
+  Cuboid::Cuboid(glm::vec3 d, glm::vec3 c, glm::vec3 r, float a) : half_dimensions(d), center(c), rotation(r), angle(a), velocity(glm::vec3(0.0f)) {
     glm::mat4 t1 = glm::translate(glm::mat4(1.0f), c);
     t1 = glm::scale(t1, d);
     t1 = glm::rotate(t1, glm::radians(-a), r);
@@ -121,7 +121,7 @@ namespace sdf {
     return (glm::length(glm::max(q, 0.0f)) + std::min(std::max(q.x, std::max(q.y, q.z)), 0.0f)) * this->get_scale_factor_svd(this->transformation);
   }
 
-  Arbitrary::Arbitrary(Mesh m) : scale(glm::vec3(1.0f)), position(glm::vec3(0.0f)), rotation(glm::vec3(1.0f)), angle(0.0f), mesh(m) {
+  Arbitrary::Arbitrary(Mesh m) : scale(glm::vec3(1.0f)), position(glm::vec3(0.0f)), rotation(glm::vec3(1.0f)), angle(0.0f), velocity(glm::vec3(0.0f)), mesh(m) {
 
     glm::mat4 tr = glm::translate(glm::mat4(1.0f), position);
     glm::mat4 ro = glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotation);
@@ -136,7 +136,7 @@ namespace sdf {
 
   }
 
-  Arbitrary::Arbitrary(Mesh m, glm::vec3 s, glm::vec3 p, glm::vec3 r, float a) : scale(s), position(p), rotation(r), angle(a), mesh(m) {
+  Arbitrary::Arbitrary(Mesh m, glm::vec3 s, glm::vec3 p, glm::vec3 r, float a) : scale(s), position(p), rotation(r), angle(a), velocity(glm::vec3(0.0f)), mesh(m) {
 
     glm::mat4 tr = glm::translate(glm::mat4(1.0f), position);
     glm::mat4 ro = glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotation);

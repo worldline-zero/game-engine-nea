@@ -1,5 +1,7 @@
 #include "../inc/scene.hpp"
 
+extern struct renderer_state_container renderer_state;
+
 namespace sdf {
 
   void Scene::print_volumes() {
@@ -138,6 +140,19 @@ namespace sdf {
   void Scene::render(Shader &s) {
     for (const auto &[vol_id, vol] : this->volumes) {
       std::visit([&s](auto v) { v.render(s); }, vol);
+    }
+  }
+
+  void Scene::update() {
+    for (auto &[vol_id, vol] : this->volumes) {
+      std::visit([](auto &v) {
+        for (auto &[obj_id, obj] : v.children) {
+          std::visit([](auto &o) {
+            o.transformation = glm::translate(o.transformation, o.velocity * renderer_state.frame_time);
+            o.inverse_scale_trans = glm::translate(o.inverse_scale_trans, o.velocity * renderer_state.frame_time);
+          }, obj);
+        }
+      }, vol);
     }
   }
 

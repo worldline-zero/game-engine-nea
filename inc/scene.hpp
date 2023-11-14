@@ -5,6 +5,7 @@
 #include <type_traits>
 
 #include "./bounding.hpp"
+#include "./renderer_state.hpp"
 #include "../lib/include/glad/gl.h"
 
 namespace sdf {
@@ -64,8 +65,10 @@ namespace sdf {
 
       void render(Shader &s);
 
+      void update();
+
       volume_type &operator[](const unsigned int id) {
-        return volumes[id];
+        return volumes.at(id);
       } 
 
     private:

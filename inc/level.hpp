@@ -63,22 +63,20 @@ namespace level {
       std::map<std::string, std::any> functions;
 
       template <typename T>
-      void operator()(Tokenizer::iterator &i, Level *l, T &object) {
+      T &operator()(Tokenizer::iterator &i, Level *l, T &object) {
         while (*(++i) != "]") {
           if (*i == "start") {
             this->functions.insert(std::make_pair("start", 0u));
             auto collision_behaviour = [](physics::collision_info cb, T &object, Level *l) {
-              std::cout << "collided" << std::endl;
               if (object.collided == false) {
-                object.opt_timed_job = event::timed_job(
-                    [&l](unsigned int ct, unsigned int tt) {
-                      std::cout << ct<< std::endl;
-                      if (ct > 5000) {
-                        l->running = false;
-                      }
-                    }, 5000);
-                l->running = true;
-                object.collided = true;
+                auto temp_opt_timed_job =  
+                [](unsigned int ct, unsigned int tt, Level *l) {
+                  std::cout << ct<< std::endl;
+                  if (ct > 5000) {
+                    l->running = false;
+                  }
+                };
+                object.opt_timed_job = event::timed_job(std::bind(temp_opt_timed_job, std::placeholders::_1, std::placeholders::_2, l), 5000);
                 object.opt_timed_job.value().add_to(l->jobs);
               }
             };
@@ -94,6 +92,7 @@ namespace level {
             this->functions.insert(std::make_pair("moving", glm::vec4(new_pos, d)));
           }
         }
+        return object;
       }
 
       void clean();

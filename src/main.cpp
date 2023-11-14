@@ -104,9 +104,33 @@ int main() {
   //test_event.add_to(test_jobs);
   render_state_update_job.add_to(test_level.jobs);
 
-  while (!glfwWindowShouldClose(window)) {
+  auto &vol = test_level.scene[0];
+
+  std::visit([](auto &v) {
+    v.add_object(sdf::Cuboid(glm::vec3(100.0f, 1.0f, 10.0f), glm::vec3(1.0f), glm::vec3(1.0f), 0.0f));
+  }, vol);
+
+  std::visit([](auto &v) {
+    std::visit([](auto &c) {
+      std::cout << c.ID << std::endl;
+      c.velocity = glm::vec3(3.0f, 0.0f, 0.0f);
+    }, v[1]);
+  }, vol);
+
+  std::visit([](auto &v) {
+    std::visit([](auto &c) {
+      std::cout << c.velocity << std::endl;
+    }, v[1]);
+  }, vol);
+
+
+  test_level.running = true;
+
+  while (test_level.running) {
 
     player.update_dir(1, 2);
+
+    test_level.scene.update();
 
     event::game::process_input(player, test_level.scene, window);
 
@@ -127,11 +151,13 @@ int main() {
     //event::address_active_jobs(test_jobs);
     event::address_active_jobs(test_level.jobs);
 
-    //std::cout << player.velocity << std::endl;
+    //std::cout << player.position << std::endl;
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+
+  std::cout << "program terminated successfully\n";
 
   glfwTerminate();
 

@@ -34,6 +34,8 @@ namespace sdf {
       unsigned int ID;
       object_type_id type;
 
+      glm::vec3 velocity = glm::vec3(0.0f);
+
       Mesh mesh;
 
       bool collided = false;
@@ -54,6 +56,7 @@ namespace sdf {
 
       float radius;
       glm::vec3 center;
+      glm::vec3 velocity = glm::vec3(0.0f);
 
       Sphere();
 
@@ -88,6 +91,7 @@ namespace sdf {
       glm::vec3 center;
       glm::vec3 rotation;
       float angle;
+      glm::vec3 velocity = glm::vec3(0.0f);
 
       Cuboid();
 
@@ -124,6 +128,7 @@ namespace sdf {
       glm::vec3 position;
       glm::vec3 rotation;
       float angle;
+      glm::vec3 velocity = glm::vec3(0.0f);
 
       Mesh mesh;
 

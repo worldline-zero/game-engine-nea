@@ -197,13 +197,12 @@ namespace physics {
           std::visit([&collisions, &capsule](auto &o) mutable {
             auto collision_test_result = physics::capsule_mesh_collision_CPU(capsule, o.mesh, o.transformation);
             if (o.solid) {
+              collision_test_result.object_velocity = o.velocity;
               collisions.push_back(collision_test_result);
             }
-            //for (const auto &c:collision_test_result) {
-              if (collision_test_result.hit) {
-                o.collision_behaviour(collision_test_result);
-              }
-            //}
+            if (collision_test_result.hit) {
+              o.collision_behaviour(collision_test_result);
+            }
           }, obj);
         }
       }, vol);
@@ -221,13 +220,17 @@ namespace physics {
     glm::vec3 normal = glm::vec3(0.0f);
     bool hit = false;
     float depth = 0.0f;
+    glm::vec3 collison_velocity = glm::vec3(0.0f);
     for (const auto &i : tests) {
       hit |= i.hit;
       if (i.hit && (i.penetration_normal == i.penetration_normal)) {
         depth = std::max(std::abs(i.depth), depth);
         normal += i.penetration_normal;
+        collison_velocity += project_on_plane(i.object_velocity, normal);
       }
     }
+
+    velocity += collison_velocity;
 
     if (hit == true) {
       //std::cout << normal << std::endl;

@@ -20,9 +20,6 @@ namespace level {
 
   glm::vec3 parse_vec3(Tokenizer::iterator &i); // parses a vec3 ( float float float ). assumes typename has already been parsed
 
-  template <class T>
-  std::unique_ptr<T> parse_flags(Tokenizer::iterator &i, T &object, std::vector<event::timed_job*> &jobs, Level *l);
-
   std::unique_ptr<sdf::Cuboid> parse_cuboid(Tokenizer::iterator &i); // parses a cuboid. cuboid name already parsed when called.
                                                                                  // does not parse flags
 
@@ -35,7 +32,5 @@ namespace level {
   std::unique_ptr<sdf::bounding_sphere> parse_bsphere(std::ifstream &file);
 
 }
-
-#include "./level_parser.tcc"
 
 #endif

@@ -21,6 +21,7 @@ namespace physics {
     float depth;
     glm::vec3 surface_normal;
     glm::vec3 penetration_normal;
+    glm::vec3 object_velocity;
   };
 
 }

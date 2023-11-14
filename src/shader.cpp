@@ -28,7 +28,7 @@ Shader::Shader(const char *compute_path) {
   ID = glCreateProgram();
   glAttachShader(ID, compute);
   glLinkProgram(ID);
-  check_errors(ID, "compute program");
+  check_errors(ID, "program");
 
   glDeleteShader(compute);
 
@@ -85,7 +85,7 @@ Shader::Shader(const char *vertex_path, const char *frag_path) {
   glAttachShader(ID, vertex);
   glAttachShader(ID, frag);
   glLinkProgram(ID);
-  check_errors(ID, "vertex + frag program");
+  check_errors(ID, "program");
 
   glDeleteShader(vertex);
   glDeleteShader(frag);

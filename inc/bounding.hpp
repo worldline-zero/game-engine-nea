@@ -38,7 +38,7 @@ namespace sdf {
       void render(Shader &s);
 
       child_type &operator[](const unsigned int id) {
-        return children[id];
+        return children.at(id);
       }
 
   };
