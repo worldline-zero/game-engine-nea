@@ -49,7 +49,7 @@ namespace sdf {
       
       Mesh(const std::string mesh_path);
 
-      void draw();
+      void draw() const;
 
       constexpr Mesh &operator=(const Mesh &other) {
 

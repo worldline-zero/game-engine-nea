@@ -33,6 +33,7 @@ namespace event {
       p.velocity += key_s(p, s, w, directions);
       p.velocity += key_d(p, s, w, directions);
       p.velocity += key_space(p, s, w, directions);
+      key_esc(p, s, w);
 
       //std::cout << p.velocity << std::endl;
      
@@ -112,6 +113,12 @@ namespace event {
         p.direction_counter[UP] = 1;
       }
       return new_velocity;
+    }
+
+    void key_esc(Player &p, sdf::Scene &s, GLFWwindow *w) {
+      if (PRESSED(GLFW_KEY_ESCAPE, w)) { 
+        exit(0);
+      }
     }
 
 /*

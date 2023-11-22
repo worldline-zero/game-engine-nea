@@ -105,7 +105,7 @@ namespace sdf {
 
   }
 
-  void Mesh::draw() {
+  void Mesh::draw() const {
 
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, this->vertices.size());

@@ -46,7 +46,7 @@ void Player::update_dir(unsigned int ct, unsigned int tt) {
 }
 
 void Player::update_bounds(unsigned int ct, unsigned int tt) {
-  this->player_bounds = sdf::Capsule(this->position - (up * 1.5f), this->position + (up * 0.5f), 0.4f);
+  this->player_bounds = sdf::Capsule(this->position - (up * 1.5f), this->position + (up * 0.5f), 0.5f);
 }
 
 void Player::update_position(sdf::Scene scene) {
@@ -83,14 +83,23 @@ void Player::update_position(sdf::Scene scene) {
   for (const auto &ci:collision_tests) {
     if (ci.hit) {
       object_velocity += ci.object_velocity;
-      std::cout << ci.object_velocity << std::endl;
+      //std::cout << ci.object_velocity << std::endl;
+      //std::cout << "hit" << std::endl;
     }
   }
-  std::cout << std::endl;
   object_velocity *= renderer_state.frame_time;
+
+  std::cout << renderer_state.frame_time << std::endl;
 
   glm::vec3 new_velocity = physics::collision_response(frame_velocity, collision_tests, this->up, this->grounded);
 
+  std::cout << new_velocity / renderer_state.frame_time << std::endl;
+  if (renderer_state.frame_time > 0.00001) {
+    this->velocity =  glm::vec3(new_velocity / renderer_state.frame_time);
+  }
+
+  std::cout << object_velocity << std::endl;
+  
   this->position += new_velocity;
   this->previous_bounds = this->player_bounds;
   this->update_bounds(1, 2);

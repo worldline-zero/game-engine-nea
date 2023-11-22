@@ -17,6 +17,8 @@
 
 namespace sdf {
 
+  /*
+
   enum object_type_id {
     AABB_id,
     bounding_sphere_id,
@@ -125,7 +127,7 @@ namespace sdf {
     public:
 
       glm::vec3 scale;
-      glm::vec3 position;
+      glm::vec3 center;
       glm::vec3 rotation;
       float angle;
       glm::vec3 velocity = glm::vec3(0.0f);
@@ -142,7 +144,7 @@ namespace sdf {
       constexpr Arbitrary &operator=(const Arbitrary &other) {
 
         this->scale = other.scale;
-        this->position = other.position;
+        this->center = other.center;
         this->rotation = other.rotation;
         this->angle = other.angle;
         this->mesh = other.mesh;
@@ -156,6 +158,38 @@ namespace sdf {
       }
 
   };
+  */
+
+  class Object {
+    
+    public:
+
+      unsigned int ID;
+      
+      glm::vec3 position;
+      glm::vec3 scale;
+      glm::vec3 rotation;
+      float angle;
+      glm::mat4 transformation;
+
+      sdf::Mesh mesh;
+
+      glm::vec3 velocity;
+
+      bool collided = false;
+
+      bool solid = true;
+
+      std::optional<event::timed_job> opt_timed_job = std::nullopt;
+
+      std::function<void(physics::collision_info)> collision_behaviour = [](physics::collision_info c){;};
+
+      Object(sdf::Mesh m, glm::vec3 p, glm::vec3 s, glm::vec3 r, float a);
+
+      void construct_matrix();
+
+  };
+
 
   struct Capsule {
     glm::vec3 base;

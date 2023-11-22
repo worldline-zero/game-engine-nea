@@ -11,6 +11,8 @@
 
 namespace sdf {
 
+  /*
+
   class bounding_volume {
 
     public:
@@ -74,6 +76,30 @@ namespace sdf {
       void details();
 
       float dist(glm::vec3 pos);
+
+  };
+
+  */
+
+  class AABB {
+
+    public:
+
+      unsigned int ID;
+
+      glm::vec3 position;
+      glm::vec3 dimensions;
+      glm::mat4 transformation;
+
+      std::map<unsigned int, sdf::Object> children;
+
+      AABB(glm::vec3 p, glm::vec3 d);
+
+      void construct_matrix();
+
+      void render(Shader &s) const;
+
+      void add_object(sdf::Object);
 
   };
 

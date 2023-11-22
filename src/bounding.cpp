@@ -4,6 +4,7 @@ namespace sdf {
 
   extern unsigned int objectID;
 
+  /*
 
   void bounding_volume::print_children() {
     std::cout << "\n";
@@ -80,6 +81,33 @@ namespace sdf {
 
   float bounding_sphere::dist(glm::vec3 pos) {
     return glm::length(pos - this->center) - this->radius;
+  }
+  */
+
+  AABB::AABB(glm::vec3 p, glm::vec3 d) :
+    position(p),
+    dimensions(d)
+  {
+    construct_matrix();
+    this->ID = objectID;
+    objectID++;
+  }
+
+  void AABB::construct_matrix() {
+    glm::mat4 tr = glm::translate(this->transformation, this->position);
+    glm::mat4 sc = glm::scale(this->transformation, this->dimensions);
+    this->transformation = tr * sc;
+  }
+
+  void AABB::render(Shader &s) const {
+    for (const auto &[obj_id, obj]:this->children) {
+      s.set_matrix<glm::mat4>("model", obj.transformation);
+      obj.mesh.draw();
+    }
+  }
+
+  void AABB::add_object(sdf::Object object) {
+    this->children.insert(std::make_pair(object.ID, object));
   }
 
 }

@@ -45,6 +45,7 @@ namespace level {
     return glm::vec3(x, y, z);
   }
 
+  /*
 
   std::unique_ptr<sdf::Cuboid> parse_cuboid(Tokenizer::iterator &i) {
     
@@ -140,7 +141,14 @@ namespace level {
     sphere_p->solid = solid;
 
     return sphere_p;
-    
+  
+  }
+*/
+
+  sdf::Object parse_object(Tokenizer::iterator &i) {
+
+    return sdf::Object(sdf::Mesh("/home/charlotte/usr/dev/game-engine-nea/res/cube.obj"), glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(1.0f), glm::vec3(1.0f), 0.0f);
+
   }
 
 }

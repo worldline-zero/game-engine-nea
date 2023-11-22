@@ -19,11 +19,11 @@ namespace event {
     }
   }
 
-    void timed_job::add_to(std::vector<timed_job> &jobs) {
-      this->start_time = std::chrono::high_resolution_clock::now();
-      jobs.push_back(*this);
-    }
-      
+  void timed_job::add_to(std::map<std::string, timed_job> &jobs, std::string name) {
+    this->start_time = std::chrono::high_resolution_clock::now();
+    jobs.insert(std::make_pair(name, *this));
+  }
+    
 
   bool timed_job::check_expired() {
     if (!run_forever) {
@@ -52,13 +52,13 @@ namespace event {
   }
 
   
-  void address_active_jobs(std::vector<timed_job> &all_active_jobs) {
-    for (size_t i = 0; i<all_active_jobs.size(); i++) {
-      if (all_active_jobs[i].check_expired() == false) {
-        all_active_jobs[i].run();
+  void address_active_jobs(std::map<std::string, timed_job> &all_active_jobs) {
+    for (auto i = all_active_jobs.begin(); i!=all_active_jobs.end(); i++) {
+      if (i->second.check_expired() == false) {
+        i->second.run();
       } else {
-        all_active_jobs[i].run();
-        all_active_jobs.erase(all_active_jobs.begin() + i);
+        i->second.run();
+        i = all_active_jobs.erase(i);
       }
     }
   }

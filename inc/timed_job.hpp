@@ -5,6 +5,8 @@
 #include <vector>
 #include <functional>
 #include <iostream>
+#include <map>
+#include <string>
 
 #define JOB_SIGNATURE void(unsigned int, unsigned int)
 
@@ -28,7 +30,7 @@ namespace event {
 
       timed_job(std::function<JOB_SIGNATURE> job_param, const int N);
 
-      void add_to(std::vector<timed_job> &jobs);
+      void add_to(std::map<std::string, timed_job> &jobs, std::string name);
 
       bool check_expired();
 
@@ -47,7 +49,7 @@ namespace event {
 
   };
 
-  void address_active_jobs(std::vector<timed_job> &all_active_jobs);
+  void address_active_jobs(std::map<std::string, timed_job> &all_active_jobs);
 
 }
 

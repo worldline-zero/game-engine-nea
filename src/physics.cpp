@@ -24,6 +24,7 @@ namespace physics {
 
   collision_info sphere_triangle_collision(glm::vec3 center, float radius, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 N) {
     collision_info result;
+    center += glm::vec3(0.0f, glm::max(glm::dot(glm::vec3(0.0f, -1.0f, 0.0f), N), 0.0f), 0.0f);
     float dist_to_plane = glm::dot(center - p0, N);
     if (dist_to_plane > radius || dist_to_plane < -radius) {
       result.hit = false;
@@ -112,7 +113,7 @@ namespace physics {
 
     //std::cout << "mesh size in vertices: " << mesh.vertices.size() << std::endl;
 
-    for (int i = 0; i<mesh.vertices.size(); i+=3) {
+    for (int i = 0; i<=mesh.vertices.size(); i+=3) {
       //std::cout << i << std::endl;
       glm::vec3 p0 = glm::vec3(transformation * glm::vec4(mesh.vertices[i].position, 1.0f));
       glm::vec3 p1 = glm::vec3(transformation * glm::vec4(mesh.vertices[i+1].position, 1.0f));
@@ -163,6 +164,9 @@ namespace physics {
 
       glm::vec3 sphere_center = closest_point_on_line(capsule_A, capsule_B, reference_point);
 
+      //std::cout << p0 << '\n' << p1 << '\n' << p2 << '\n' << sphere_center << '\n' << std::endl;
+
+
       //std::cout << "current sphere center: " << sphere_center.x << " " << sphere_center.y << " " << sphere_center.z << std::endl;
       //std::cout << "current triangle coords:\n"
       //  << "p0: " << p0.x << " " << p0.y << " " << p0.z << "\n"
@@ -170,6 +174,14 @@ namespace physics {
       //  << "p2: " << p2.x << " " << p2.y << " " << p2.z << "\n";
 
       collision_info temp_test = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, N);
+      //collision_info temp_test2 = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, -N);
+
+      if (p0 == glm::vec3(90, -14, -20) && p1 == glm::vec3(-110, -14, 0) && p2 == glm::vec3(-110, -14, -20)) {
+        std::cout << p0 << '\n' << p1 << '\n' << p2 << '\n' << sphere_center << '\n' << temp_test.hit << std::endl;
+        if (temp_test.hit) {
+          //exit(0);
+        }
+      }
 
       if (temp_test.depth > sphere_test.depth) {
         sphere_test = temp_test;
@@ -192,20 +204,16 @@ namespace physics {
     std::vector<collision_info> collisions;
 
     for (auto &[vol_id, vol] : scene.volumes) {
-      std::visit([&collisions, &capsule](auto &v) mutable {
-        for (auto &[obj_id, obj] : v.children) {
-          std::visit([&collisions, &capsule](auto &o) mutable {
-            auto collision_test_result = physics::capsule_mesh_collision_CPU(capsule, o.mesh, o.transformation);
-            if (o.solid) {
-              collision_test_result.object_velocity = o.velocity;
-              collisions.push_back(collision_test_result);
-            }
-            if (collision_test_result.hit) {
-              o.collision_behaviour(collision_test_result);
-            }
-          }, obj);
+      for (auto &[obj_id, obj] : vol.children) {
+        auto collision_test_result = physics::capsule_mesh_collision_CPU(capsule, obj.mesh, obj.transformation);
+        if (obj.solid) {
+          collision_test_result.object_velocity = obj.velocity;
+          collisions.push_back(collision_test_result);
         }
-      }, vol);
+        if (collision_test_result.hit) {
+          obj.collision_behaviour(collision_test_result);
+        }
+      }
     }
 
     return collisions;
@@ -213,10 +221,6 @@ namespace physics {
   }
 
   glm::vec3 collision_response(glm::vec3 velocity, const std::vector<collision_info> tests, glm::vec3 up, bool &ground) {
-    glm::vec3 modified_velocity = velocity;
-    if (glm::length(velocity) > 9.0f/renderer_state.frame_time) {
-      modified_velocity = glm::normalize(velocity) * 9.0f;
-    }
     glm::vec3 normal = glm::vec3(0.0f);
     bool hit = false;
     float depth = 0.0f;
@@ -226,11 +230,11 @@ namespace physics {
       if (i.hit && (i.penetration_normal == i.penetration_normal)) {
         depth = std::max(std::abs(i.depth), depth);
         normal += i.penetration_normal;
-        collison_velocity += project_on_plane(i.object_velocity, normal);
+        collison_velocity += project_on_plane(i.object_velocity, i.penetration_normal);
       }
     }
 
-    velocity += collison_velocity;
+    //velocity += collison_velocity;
 
     if (hit == true) {
       //std::cout << normal << std::endl;
@@ -242,26 +246,26 @@ namespace physics {
       if (glm::length(velocity) < 0.001f) {
         return glm::vec3(0.0f);
       }
-      glm::vec3 reduced_velocity = velocity * ((glm::length(velocity) - depth - 0.015f) / glm::length(velocity));
+      glm::vec3 reduced_velocity = velocity * ((glm::length(velocity) - depth) / glm::length(velocity));
       if (glm::length(reduced_velocity) < 0.015f) {
         reduced_velocity = glm::vec3(0.0f);
       }
       glm::vec3 leftover_velocity = velocity - reduced_velocity;
       float ground_angle = slope_angle(up, normal);
-      if (glm::dot(normal, glm::normalize(velocity)) > 0.0f) {
-        return velocity;
-      } else {
+      //if (glm::dot(normal, glm::normalize(velocity)) > 0.0f) {
+      //  return velocity;
+      //} else {
         leftover_velocity = project_on_plane(leftover_velocity, normal);
-      }
+      //}
 
       if (ground_angle < PI/4.0f) {
         ground = true;
-        return project_on_plane(velocity, normal);
+        //return project_on_plane(velocity, normal);
       } else {
         ground = false;
       }
 
-      return reduced_velocity + leftover_velocity + (std::abs(glm::dot(velocity, normal)) * (glm::normalize(reduced_velocity + leftover_velocity) + normal) * glm::length(reduced_velocity + leftover_velocity));
+      return reduced_velocity + leftover_velocity;// + (std::abs(glm::dot(velocity, normal)) * (glm::normalize(reduced_velocity + leftover_velocity) + normal) * glm::length(reduced_velocity + leftover_velocity));
 
     } else {
 
