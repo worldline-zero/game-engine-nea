@@ -147,7 +147,73 @@ namespace level {
 
   sdf::Object parse_object(Tokenizer::iterator &i) {
 
-    return sdf::Object(sdf::Mesh("/home/charlotte/usr/dev/game-engine-nea/res/cube.obj"), glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(1.0f), glm::vec3(1.0f), 0.0f);
+    std::string s;
+
+    glm::vec3 position, scale, rotation;
+    float angle;
+    bool solid;
+    sdf::Mesh mesh;
+    
+    i++; // paren
+    
+    s = *(++i);
+    if (s != "vec3") {
+      std::cerr << VEC3_ERROR << std::endl;
+      exit(1);
+    } else {
+      position = parse_vec3(i);
+    }
+
+    s = *(++i);
+    if (s != "vec3") {
+      std::cerr << VEC3_ERROR << std::endl;
+      exit(1);
+    } else {
+      scale = parse_vec3(i);
+    }
+
+    s = *(++i);
+    if (s != "vec3") {
+      std::cerr << VEC3_ERROR << std::endl;
+      exit(1);
+    } else {
+      rotation = parse_vec3(i);
+    }
+
+    s = *(++i);
+    if (s != "float") {
+      std::cerr << "error parsing level file: expected float" << std::endl;
+      exit(1);
+    } else {
+      angle = boost::lexical_cast<float>(*(++i));
+    }
+
+    s = *(++i);
+    if (s != "path") {
+      std::cerr << "error parsing level file: expected file path" << std::endl;
+      exit(1);
+    } else {
+      std::string filepath = *(++i);
+      if (!std::fopen(filepath.c_str(), "r")) {
+        std::cerr << "error parsing level file: invalid mesh file path" << std::endl;
+        exit(1);
+      }
+      mesh = sdf::Mesh(filepath);
+    }
+
+    s = *(++i);
+    if (s != "solid") {
+      std::cerr << "error parsing level file: expected solid indicator" << std::endl;
+      exit(1);
+    } else {
+      solid = boost::lexical_cast<bool>(*(++i));
+    }
+    
+    sdf::Object obj(mesh, position, scale, rotation, angle);
+    obj.solid = solid;
+
+
+    return obj;//sdf::Object(sdf::Mesh("/home/charlotte/usr/dev/game-engine-nea/res/cube.obj"), glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(1.0f), glm::vec3(1.0f), 0.0f);
 
   }
 

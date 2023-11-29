@@ -9,6 +9,8 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <cstdio>
+
 #include <glm/glm.hpp>
 
 #include "./scene.hpp"

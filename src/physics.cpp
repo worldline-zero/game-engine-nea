@@ -107,7 +107,6 @@ namespace physics {
     glm::vec3 capsule_A = capsule.base + line_end_offset;
     glm::vec3 capsule_B = capsule.tip - line_end_offset;
 
-    std::vector<collision_info> sphere_tests;
     collision_info sphere_test;
     sphere_test.depth = 0.0f;
 
@@ -176,8 +175,8 @@ namespace physics {
       collision_info temp_test = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, N);
       //collision_info temp_test2 = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, -N);
 
-      if (p0 == glm::vec3(90, -14, -20) && p1 == glm::vec3(-110, -14, 0) && p2 == glm::vec3(-110, -14, -20)) {
-        std::cout << p0 << '\n' << p1 << '\n' << p2 << '\n' << sphere_center << '\n' << temp_test.hit << std::endl;
+      if (p2 == glm::vec3(90, -6, 0) && p1 == glm::vec3(-110, -6, 0) && p0 == glm::vec3(-110, -6, -20)) {
+        std::cout << p0 << '\n' << p1 << '\n' << p2 << '\n' << sphere_center << '\n' << temp_test.depth << '\n' << temp_test.hit << std::endl;
         if (temp_test.hit) {
           //exit(0);
         }
@@ -185,10 +184,6 @@ namespace physics {
 
       if (temp_test.depth > sphere_test.depth) {
         sphere_test = temp_test;
-      }
-
-      if (sphere_test.hit == true) {
-        sphere_tests.push_back(sphere_test);
       }
         
       //std::cout << std::endl;
@@ -246,21 +241,21 @@ namespace physics {
       if (glm::length(velocity) < 0.001f) {
         return glm::vec3(0.0f);
       }
-      glm::vec3 reduced_velocity = velocity * ((glm::length(velocity) - depth) / glm::length(velocity));
+      glm::vec3 reduced_velocity = velocity * ((glm::length(velocity) - depth - EPSILON) / glm::length(velocity));
       if (glm::length(reduced_velocity) < 0.015f) {
         reduced_velocity = glm::vec3(0.0f);
       }
       glm::vec3 leftover_velocity = velocity - reduced_velocity;
       float ground_angle = slope_angle(up, normal);
-      //if (glm::dot(normal, glm::normalize(velocity)) > 0.0f) {
-      //  return velocity;
-      //} else {
+      if (glm::dot(normal, glm::normalize(velocity)) > 0.0f) {
+        return velocity;
+      } else {
         leftover_velocity = project_on_plane(leftover_velocity, normal);
-      //}
+      }
 
       if (ground_angle < PI/4.0f) {
         ground = true;
-        //return project_on_plane(velocity, normal);
+        return project_on_plane(velocity, normal);
       } else {
         ground = false;
       }

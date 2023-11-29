@@ -38,9 +38,9 @@ int main() {
   event::timed_job render_state_update_job(render::update_render_state, -1);
   render_state_update_job.add_to(test_level.jobs, std::string("update_job"));
 
-  auto &vol = test_level.scene[0];
+  //auto &vol = test_level.scene[0];
 
-  vol.add_object(sdf::Object(sdf::Mesh("/home/charlotte/usr/dev/game-engine-nea/res/cube.obj"), glm::vec3(-10.0f), glm::vec3(100.0f, 4.0f, 10.0f), glm::vec3(1.0f), 0.0f));
+  //vol.add_object(sdf::Object(sdf::Mesh("/home/charlotte/usr/dev/game-engine-nea/res/cube.obj"), glm::vec3(-10.0f), glm::vec3(100.0f, 4.0f, 10.0f), glm::vec3(1.0f), 0.0f));
 
  // std::cout << vol[1].ID << std::endl;
  // vol[1].velocity = glm::vec3(3.0f, 0.0f, 0.0f);
