@@ -57,10 +57,8 @@ int main() {
     //std::cout << v[2].velocity << std::endl;
 
     event::game::process_input(player, test_level.scene, window);
-
-    player.update_position(test_level.scene);
-
     test_level.scene.update();
+    player.update_position(test_level.scene);
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -70,6 +68,8 @@ int main() {
     screen.set_matrix<glm::mat4>("view", player.get_view());
     screen.set_matrix<glm::mat4>("projection", player.get_proj());
 
+    //std::cout << test_level.scene[0][2].position << std::endl;
+
 
     test_level.scene.render(screen);
 
@@ -78,13 +78,13 @@ int main() {
     //event::address_active_jobs(test_jobs);
     event::address_active_jobs(test_level.jobs);
 
-    std::cout << player.velocity << std::endl;
+    //std::cout << player.velocity << std::endl;
     std::cout << player.position << std::endl;
 
     //char c;
     //std::cin >> c;
     
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
     glfwSwapBuffers(window);
     glfwPollEvents();

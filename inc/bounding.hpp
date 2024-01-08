@@ -101,6 +101,10 @@ namespace sdf {
 
       void add_object(sdf::Object);
 
+      sdf::Object operator[](unsigned int id) {
+        return this->children.at(id);
+      }
+
   };
 
 } // namespace sdf

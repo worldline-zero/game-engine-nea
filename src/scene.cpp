@@ -17,7 +17,8 @@ namespace sdf {
   void Scene::update() {
     for (auto &[vol_id, vol] : this->volumes) {
       for (auto &[obj_id, obj] : vol.children) {
-        obj.transformation = glm::translate(obj.transformation, obj.velocity * renderer_state.frame_time);
+        obj.position += obj.velocity * renderer_state.frame_time;
+        obj.construct_matrix();
       }
     }
   }

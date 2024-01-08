@@ -9,13 +9,25 @@ namespace level {
     std::string src((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
     boost::char_separator<char> sep("\n ");
     Tokenizer tokens(src, sep);
-    std::string recon = "";
+
+    std::vector<std::string> tokens_vector;
+
+    for (Tokenizer::iterator i = tokens.begin(); i!=tokens.end(); i++) {
+      tokens_vector.push_back(*i);
+    }
+
+    for (std::vector<std::string>::iterator i = tokens_vector.begin(); i!=tokens_vector.end(); i++) {
+      if (*i == "include") {
+        std::string include_path = *(++i);
+        include_file(tokens_vector, i, include_path);
+      }
+    }
 
     flags_parser fp;
 
     sdf::AABB bounds(glm::vec3(0.0f), glm::vec3(10.0f));
 
-    for (Tokenizer::iterator i = tokens.begin(); i!=tokens.end(); i++) {
+    for (std::vector<std::string>::iterator i = tokens_vector.begin(); i!=tokens_vector.end(); i++) {
 
       /*
       if (*i == "cuboid") {
@@ -37,10 +49,15 @@ namespace level {
       } */
 
       std::cout << *i << std::endl;
-      
+
       if (*i == "object") {
         sdf::Object c = parse_object(i);
-        //c = fp(i, this, c);
+        if (*i == "[") {
+          c = fp(i, this, c);
+        } else {
+          std::cerr << "error parsing level file: expected \'[\' at start of flags" << std::endl;
+          exit(1);
+        }
         if (fp.functions.find("moving") != fp.functions.end()) {
           c.velocity = (1.0f / std::any_cast<glm::vec4>(fp.functions["moving"]).w) * (glm::vec3(std::any_cast<glm::vec4>(fp.functions["moving"])) - c.position);
         }

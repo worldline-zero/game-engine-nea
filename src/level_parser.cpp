@@ -6,6 +6,9 @@ namespace boost {
 
   template<>
   bool lexical_cast<bool, std::string>(const std::string &s) {
+    if (s != "true" && s != "false") {
+      boost::throw_exception(boost::bad_lexical_cast());
+    }
     std::stringstream ss(s);
     bool b;
     ss >> std::boolalpha >> b;
@@ -16,28 +19,12 @@ namespace boost {
 
 namespace level {
 
-  /*
-  void flags_parser::operator()(Tokenizer::iterator &i, Level *l) {
-    while (*(++i) != "]") {
-      if (*i == "start") {
-        this->functions.insert(std::make_pair("start", 0u));
-      } else if (*i == "end") {
-        this->functions.insert(std::make_pair("end", 0u));
-      } else if (*i == "moving") {
-        i++;
-        glm::vec3 new_pos = parse_vec3(i);
-        float d = boost::lexical_cast<float>(*(++i));
-        this->functions.insert(std::make_pair("moving", glm::vec4(new_pos, d)));
-      }
-    }
-  }
-  */
 
   void flags_parser::clean() {
     this->functions.clear();
   }
   
-  glm::vec3 parse_vec3(Tokenizer::iterator &i) {
+  glm::vec3 parse_vec3(std::vector<std::string>::iterator &i) {
     float x, y, z;
     x = boost::lexical_cast<float>(*(++i));
     y = boost::lexical_cast<float>(*(++i));
@@ -45,107 +32,8 @@ namespace level {
     return glm::vec3(x, y, z);
   }
 
-  /*
 
-  std::unique_ptr<sdf::Cuboid> parse_cuboid(Tokenizer::iterator &i) {
-    
-    std::string paren; // characters such as parens and semi colons
-
-    paren = *(++i); // open bracket
-    //std::cout << paren << std::endl;
-    std::string identifier;
-
-    glm::vec3 half_d, pos, rotation;
-
-    identifier = *(++i);
-    //std::cout << identifier << std::endl;
-    if (identifier == "vec3") {
-      half_d = parse_vec3(i);
-      //std::cout << half_d << std::endl;
-    } else {
-      std::cerr << VEC3_ERROR << std::endl;
-      exit(1);
-    }
-
-    identifier = *(++i);
-    //std::cout << identifier << std::endl;
-    if (identifier == "vec3") {
-      pos = parse_vec3(i);
-      //std::cout << pos << std::endl;
-    } else {
-      std::cerr << VEC3_ERROR << std::endl;
-      exit(1);
-    }
-
-    identifier = *(++i);
-    //std::cout << identifier << std::endl;
-    if (identifier == "vec3") {
-      rotation = parse_vec3(i);
-      //std::cout << rotation << std::endl;
-    } else {
-      std::cerr << VEC3_ERROR << std::endl;
-      exit(1);
-    }
-
-    float angle;
-    angle = boost::lexical_cast<float>(*(++i));
-    //std::cout << angle << std::endl;
-
-    bool solid;
-    solid = boost::lexical_cast<bool>(*(++i));
-    //std::cout << solid << std::endl;
-    paren = *(++i); // close bracket
-    //std::cout << paren << std::endl;
-
-    sdf::Cuboid c(half_d, pos, rotation, angle);
-
-    std::unique_ptr<sdf::Cuboid> cuboid_p = std::make_unique<sdf::Cuboid>(c);
-
-    cuboid_p->solid = solid;
-
-    return cuboid_p;
-
-  }
-
-  std::unique_ptr<sdf::Sphere> parse_sphere(Tokenizer::iterator &i) {
-
-    std::string paren;
-
-    paren = *(++i);
-
-    std::string identifier;
-
-    glm::vec3 position;
-
-    identifier = *(++i);
-    if (identifier == "vec3") {
-      position = parse_vec3(i);
-    } else {
-      std::cerr << VEC3_ERROR << std::endl;
-      exit(1);
-    }
-
-    float radius = boost::lexical_cast<float>(*(++i));
-    std::string solid_s = *(++i);
-    bool solid;
-    if (solid_s == "true") {
-      solid = true;
-    } else {
-      solid = false;
-    }
-
-    paren = *(++i);
-
-    sdf::Sphere s(radius, position);
-    std::unique_ptr<sdf::Sphere> sphere_p = std::make_unique<sdf::Sphere>(s);
-    sphere_p->solid = solid;
-
-    return sphere_p;
-  
-  }
-*/
-
-  sdf::Object parse_object(Tokenizer::iterator &i) {
+  sdf::Object parse_object(std::vector<std::string>::iterator &i) {
 
     std::string s;
 
@@ -153,48 +41,89 @@ namespace level {
     float angle;
     bool solid;
     sdf::Mesh mesh;
+
+    std::string object_name = *(++i);
+
+    if (object_name == "{") {
+      std::cerr << "\'{\' is not a valid object name" << std::endl;
+      exit(1);
+    }
     
     i++; // paren
     
     s = *(++i);
     if (s != "vec3") {
+      std::cerr << "in object: " << object_name << std::endl;
       std::cerr << VEC3_ERROR << std::endl;
       exit(1);
     } else {
-      position = parse_vec3(i);
+      try {
+        position = parse_vec3(i);
+      } catch (...) {
+        std::cerr << "in object: " << object_name << std::endl;
+        std::cerr << "error parsing level file: invalid value" << std::endl;
+        std::cerr << "value in question: " << *i << std::endl;
+        exit(1);
+      }
     }
 
     s = *(++i);
     if (s != "vec3") {
+      std::cerr << "in object: " << object_name << std::endl;
       std::cerr << VEC3_ERROR << std::endl;
       exit(1);
     } else {
-      scale = parse_vec3(i);
+      try {
+        scale = parse_vec3(i);
+      } catch (...) {
+        std::cerr << "in object: " << object_name << std::endl;
+        std::cerr << "error parsing level file: invalid value" << std::endl;
+        std::cerr << "value in question: " << *i << std::endl;
+        exit(1);
+      }
     }
 
     s = *(++i);
     if (s != "vec3") {
+      std::cerr << "in object: " << object_name << std::endl;
       std::cerr << VEC3_ERROR << std::endl;
       exit(1);
     } else {
-      rotation = parse_vec3(i);
+      try {
+        rotation = parse_vec3(i);
+      } catch (...) {
+        std::cerr << "in object: " << object_name << std::endl;
+        std::cerr << "error parsing level file: invalid value" << std::endl;
+        std::cerr << "value in question: " << *i << std::endl;
+        exit(1);
+      }
     }
 
     s = *(++i);
     if (s != "float") {
+      std::cerr << "in object: " << object_name << std::endl;
       std::cerr << "error parsing level file: expected float" << std::endl;
       exit(1);
     } else {
-      angle = boost::lexical_cast<float>(*(++i));
+      try {
+        angle = boost::lexical_cast<float>(*(++i));
+      } catch (...) {
+        std::cerr << "in object: " << object_name << std::endl;
+        std::cerr << "error parsing level file: invalid value" << std::endl;
+        std::cerr << "value in question: " << *i << std::endl;
+        exit(1);
+      }
     }
 
     s = *(++i);
     if (s != "path") {
+      std::cerr << "in object: " << object_name << std::endl;
       std::cerr << "error parsing level file: expected file path" << std::endl;
       exit(1);
     } else {
       std::string filepath = *(++i);
       if (!std::fopen(filepath.c_str(), "r")) {
+        std::cerr << "in object: " << object_name << std::endl;
         std::cerr << "error parsing level file: invalid mesh file path" << std::endl;
         exit(1);
       }
@@ -203,17 +132,44 @@ namespace level {
 
     s = *(++i);
     if (s != "solid") {
+      std::cerr << "in object: " << object_name << std::endl;
       std::cerr << "error parsing level file: expected solid indicator" << std::endl;
       exit(1);
     } else {
-      solid = boost::lexical_cast<bool>(*(++i));
+      try {
+        solid = boost::lexical_cast<bool>(*(++i));
+      } catch (...) {
+        std::cerr << "in object: " << object_name << std::endl;
+        std::cerr << "error parsing level file: invalid value" << std::endl;
+        std::cerr << "value in question: " << *i << std::endl;
+        exit(1);
+      }
     }
     
     sdf::Object obj(mesh, position, scale, rotation, angle);
     obj.solid = solid;
 
+    i++;
+    i++; // closing paren
 
-    return obj;//sdf::Object(sdf::Mesh("/home/charlotte/usr/dev/game-engine-nea/res/cube.obj"), glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(1.0f), glm::vec3(1.0f), 0.0f);
+    return obj;
+
+  }
+
+  void include_file(std::vector<std::string> &original_file, std::vector<std::string>::iterator &i, std::string include_path) {
+
+    std::ifstream file(include_path);
+    std::string src((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+    boost::char_separator<char> sep("\n ");
+    Tokenizer tokens(src, sep);
+
+    std::vector<std::string> tokens_vector;
+    
+    for (Tokenizer::iterator i = tokens.begin(); i!=tokens.end(); i++) {
+      tokens_vector.push_back(*i);
+    }
+
+    original_file.insert(i + 1, tokens_vector.begin(), tokens_vector.end());
 
   }
 

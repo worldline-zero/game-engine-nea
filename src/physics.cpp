@@ -176,7 +176,7 @@ namespace physics {
       //collision_info temp_test2 = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, -N);
 
       if (p2 == glm::vec3(90, -6, 0) && p1 == glm::vec3(-110, -6, 0) && p0 == glm::vec3(-110, -6, -20)) {
-        std::cout << p0 << '\n' << p1 << '\n' << p2 << '\n' << sphere_center << '\n' << temp_test.depth << '\n' << temp_test.hit << std::endl;
+        //std::cout << p0 << '\n' << p1 << '\n' << p2 << '\n' << sphere_center << '\n' << temp_test.depth << '\n' << temp_test.hit << std::endl;
         if (temp_test.hit) {
           //exit(0);
         }
@@ -202,7 +202,8 @@ namespace physics {
       for (auto &[obj_id, obj] : vol.children) {
         auto collision_test_result = physics::capsule_mesh_collision_CPU(capsule, obj.mesh, obj.transformation);
         if (obj.solid) {
-          collision_test_result.object_velocity = obj.velocity;
+          collision_test_result.object_velocity = obj.velocity; // + obj.rotational_velocity;
+          collision_test_result.object_position = obj.position;
           collisions.push_back(collision_test_result);
         }
         if (collision_test_result.hit) {

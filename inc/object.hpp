@@ -175,6 +175,7 @@ namespace sdf {
       sdf::Mesh mesh;
 
       glm::vec3 velocity;
+      float rotational_velocity;
 
       bool collided = false;
 

@@ -1,6 +1,7 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#include <algorithm>
 #include <any>
 #include <vector>
 #include <iostream>
@@ -15,6 +16,8 @@
 #include "./scene.hpp"
 #include "./physics.hpp"
 #include "./events.hpp"
+
+extern struct renderer_state_container renderer_state;
 
 
 namespace level {
@@ -40,15 +43,17 @@ namespace level {
 
   };
 
-  glm::vec3 parse_vec3(Tokenizer::iterator &i); // parses a vec3 ( float float float ). assumes typename has already been parsed
+  glm::vec3 parse_vec3(std::vector<std::string>::iterator &i); // parses a vec3 ( float float float ). assumes typename has already been parsed
 
 //  std::unique_ptr<sdf::Cuboid> parse_cuboid(Tokenizer::iterator &i); // parses a cuboid. cuboid name already parsed when called.
 
 //  std::unique_ptr<sdf::Sphere> parse_sphere(Tokenizer::iterator &i);
 
-  sdf::Object parse_object(Tokenizer::iterator &i);
+  sdf::Object parse_object(std::vector<std::string>::iterator &i);
 
-  sdf::AABB parse_AABB(Tokenizer::iterator &i);
+  sdf::AABB parse_AABB(std::vector<std::string>::iterator &i);
+
+  void include_file(std::vector<std::string> &original_file, std::vector<std::string>::iterator &i, std::string include_path);
 
   bool is_on_segment(glm::vec3 a, glm::vec3 b, glm::vec3 point);
 
@@ -60,7 +65,7 @@ namespace level {
 
       std::map<std::string, std::any> functions;
 
-      sdf::Object &operator()(Tokenizer::iterator &i, Level *l, sdf::Object &object) {
+      sdf::Object &operator()(std::vector<std::string>::iterator &i, Level *l, sdf::Object &object) {
         while (*(++i) != "]") {
           if (*i == "start") {
             this->functions.insert(std::make_pair("start", 0u));
@@ -85,19 +90,29 @@ namespace level {
             object.collision_behaviour = std::bind(collision_behaviour, std::placeholders::_1, l);
           }
           if (*i == "moving") {
-            i++;
+            if (*(++i) != "vec3") {
+              std::cerr << "error parsing level file: expected vec3" << std::endl;
+              std::cout << *i << std::endl;
+              exit(1);
+            }
             glm::vec3 new_pos = parse_vec3(i);
             float d;
             d = boost::lexical_cast<float>(*(++i));
             this->functions.insert(std::make_pair("moving", glm::vec4(new_pos, d)));
 
-            unsigned int interval = d * 1000;
-            auto job = [interval](unsigned int ct, unsigned int tt, Level *l, unsigned int ID) {
+            unsigned int interval_ms = d * 1000;
+            glm::vec3 start = object.position;
+            auto job = [interval_ms, start, d, new_pos](unsigned int ct, unsigned int tt, Level *l, unsigned int ID) {
               for (auto &[vid, vol]:l->scene.volumes) {
                 for (auto &[oid, obj]:vol.children) {
                   if (obj.ID == ID) {
-                    unsigned int intervals_passed = ct / interval;
-                    obj.velocity = static_cast<float>(pow(-1, intervals_passed)) * obj.velocity;
+                    unsigned int intervals_passed = ct / interval_ms;
+                    if (intervals_passed % 2 == 0) {
+                      obj.velocity = (new_pos - start) / d;
+                    } else {
+                      obj.velocity = (start - new_pos) / d;
+                    }
+                    //obj.velocity = static_cast<float>(pow(-1, intervals_passed)) * obj.velocity;
                   }
                 }
               }
@@ -107,6 +122,33 @@ namespace level {
             move_job.add_to(l->jobs, std::to_string(object.ID) + "move_func");
 
           }
+
+          if (*i == "rotate") {
+            if (*(++i) != "vec3") {
+              std::cerr << "error parsing level file: expected vec3" << std::endl;
+              exit(1);
+            }
+            glm::vec3 new_rotation = parse_vec3(i);
+            float angle_per_frame = boost::lexical_cast<float>(*(++i));
+
+            auto job = [new_rotation, angle_per_frame](unsigned int ct, unsigned int tt, Level *l, unsigned int ID) {
+              for (auto &[vid, vol]:l->scene.volumes) {
+                for (auto &[oid, obj]:vol.children) {
+                  if (obj.ID == ID) {
+                    obj.rotation = new_rotation;
+                    obj.angle += angle_per_frame;
+                    obj.rotational_velocity = glm::radians(angle_per_frame) / renderer_state.frame_time;
+                    obj.construct_matrix();
+                  }
+                }
+              }
+            };
+
+            event::timed_job rotation_job(std::bind(job, std::placeholders::_1, std::placeholders::_2, l, object.ID), -1);
+            rotation_job.add_to(l->jobs, std::to_string(object.ID) + "rotation_func");
+            
+          }
+
         }
         return object;
       }

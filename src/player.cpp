@@ -79,28 +79,35 @@ void Player::update_position(sdf::Scene scene) {
 
   std::vector<physics::collision_info> collision_tests = physics::capsule_scene_collision(new_bounds, scene);
 
+  glm::vec3 new_velocity = physics::collision_response(frame_velocity, collision_tests, this->up, this->grounded);
+  
   glm::vec3 object_velocity = glm::vec3(0.0f);
   for (const auto &ci:collision_tests) {
     if (ci.hit) {
-      object_velocity += ci.object_velocity;
-      //std::cout << ci.object_velocity << std::endl;
-      //std::cout << "hit" << std::endl;
+      object_velocity += ci.object_velocity;// * ((this->position + new_velocity) - ci.object_position);
     }
   }
   object_velocity *= renderer_state.frame_time;
 
-  std::cout << renderer_state.frame_time << std::endl;
 
-  glm::vec3 new_velocity = physics::collision_response(frame_velocity, collision_tests, this->up, this->grounded);
+  // for some reason either new_velocity or frame_time hold incorrect values until used in a calculation.
+  // i have no idea why
+  // this section below creates a variable that does a calculation with them
+  // the preprocessor directives are just so that i dont get warnings for this variable
+  // do not put anything within the pragma clang diagnostic ignored "-Wunused-variable" section other than this calculation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+  volatile glm::vec3 t = renderer_state.frame_time / new_velocity;
+#pragma clang diagnostic pop
 
-  std::cout << new_velocity / renderer_state.frame_time << std::endl;
+
   if (renderer_state.frame_time > 0.00001) {
-    this->velocity =  glm::vec3(new_velocity / renderer_state.frame_time);
+    this->velocity = glm::vec3(new_velocity / renderer_state.frame_time);
   }
 
-  std::cout << object_velocity << std::endl;
+  //std::cout << object_velocity << std::endl;
   
-  this->position += new_velocity;
+  this->position += new_velocity + object_velocity;
   this->previous_bounds = this->player_bounds;
   this->update_bounds(1, 2);
 }
