@@ -1,0 +1,223 @@
+#include "../inc/gui.hpp"
+
+namespace gui {
+
+  glm::vec2 pixel_to_NDC(unsigned int x, unsigned int y) {
+    glm::vec2 pixels((float)x, (float)y);
+    pixels = pixels / glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+    pixels = (pixels * glm::vec2(2.0f)) - glm::vec2(1.0f);
+    return pixels;
+  }
+
+  glm::vec2 pixel_to_font_size(unsigned int x, unsigned int y) {
+    glm::vec2 pixels((float)x, (float)y);
+    pixels = pixels / glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+    pixels = (pixels * glm::vec2(2.0f));
+    return pixels;
+  }
+
+  glm::vec2 get_cursor_position(GLFWwindow *window) {
+    int w, h;
+    glfwGetWindowSize(window, &w, &h);
+    //std::cout << "window size: " << w << " " << h << std::endl;
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    //std::cout << "cursor position: " << x << " " << y << std::endl;
+
+    return glm::vec2((2.0f * (x / w)) - 1.0f, 1.0f - (2.0f * (y / h)));
+
+  }
+
+  Font::Font(std::string bitmap) : font_path(bitmap), font_shader(Shader("./shader/font_vertex.glsl", "./shader/font_fragment.glsl")) {
+    this->positions = {
+      { 'A' , glm::vec2(0.0f, 0.0f) },
+      { 'B' , glm::vec2(0.125f, 0.0f) },
+      { 'C' , glm::vec2(0.25f, 0.0f) },
+      { 'D' , glm::vec2(0.375f, 0.0f) },
+      { 'E' , glm::vec2(0.5f, 0.0f) },
+      { 'F' , glm::vec2(0.625f, 0.0f) },
+      { 'G' , glm::vec2(0.75f, 0.0f) },
+      { 'H' , glm::vec2(0.875f, 0.0f) },
+      { 'I' , glm::vec2(0.0f, 0.125f) },
+      { 'J' , glm::vec2(0.125f, 0.125f) },
+      { 'K' , glm::vec2(0.25f, 0.125f) },
+      { 'L' , glm::vec2(0.375f, 0.125f) },
+      { 'M' , glm::vec2(0.5f, 0.125f) },
+      { 'N' , glm::vec2(0.625f, 0.125f) },
+      { 'O' , glm::vec2(0.75f, 0.125f) },
+      { 'P' , glm::vec2(0.875f, 0.125f) },
+      { 'Q' , glm::vec2(0.0f, 0.25f) },
+      { 'R' , glm::vec2(0.125f, 0.25f) },
+      { 'S' , glm::vec2(0.25f, 0.25f) },
+      { 'T' , glm::vec2(0.375f, 0.25f) },
+      { 'U' , glm::vec2(0.5f, 0.25f) },
+      { 'V' , glm::vec2(0.625f, 0.25f) },
+      { 'W' , glm::vec2(0.75f, 0.25f) },
+      { 'X' , glm::vec2(0.875f, 0.25f) },
+      { 'Y' , glm::vec2(0.0f, 0.375f) },
+      { 'Z' , glm::vec2(0.125f, 0.375f) },
+      { ' ' , glm::vec2(0.25f, 0.375f) },
+      { '1' , glm::vec2(0.375f, 0.375f) },
+      { '2' , glm::vec2(0.5f, 0.375f) },
+      { '3' , glm::vec2(0.625f, 0.375f) },
+      { '4' , glm::vec2(0.75f, 0.375f) },
+      { '5' , glm::vec2(0.875f, 0.375f) },
+      { '6' , glm::vec2(0.0f, 0.5f) },
+      { '7' , glm::vec2(0.125f, 0.5f) },
+      { '8' , glm::vec2(0.25f, 0.5f) },
+      { '9' , glm::vec2(0.375f, 0.5f) },
+      { '0' , glm::vec2(0.5f, 0.5f) },
+      { '.' , glm::vec2(0.625f, 0.5f) },
+      { ',' , glm::vec2(0.75f, 0.5f) },
+      { '!' , glm::vec2(0.875f, 0.5f) },
+    };
+    this->texture = texture_from_image(this->font_path, GL_TEXTURE1);
+  }
+
+  std::array<char_vertex, 4> Font::get_char_vertex_data(glm::vec2 screen_position, char character, glm::vec2 font_size) {
+   
+    //positions
+    glm::vec2 pbl, pbr, ptl, ptr; // bottom left, bottom right, top left, top right
+    pbl = screen_position;
+    pbr = screen_position + glm::vec2(font_size.x, 0.0f);
+    ptl = screen_position + glm::vec2(0.0f, font_size.y);
+    ptr = screen_position + font_size;
+
+    //texture coordinates
+    glm::vec2 tbl, tbr, ttl, ttr;
+    tbl = this->positions[character];
+    tbr = tbl + glm::vec2(0.125f, 0.0f);
+    ttl = tbl + glm::vec2(0.0f, 0.125f);
+    ttr = tbl + glm::vec2(0.125f);
+    
+    std::array<char_vertex, 4> data;
+    data[0] = (char_vertex){ .position = pbl, .tex_position = tbl };
+    data[1] = (char_vertex){ .position = pbr, .tex_position = tbr };
+    data[2] = (char_vertex){ .position = ptl, .tex_position = ttl };
+    data[3] = (char_vertex){ .position = ptr, .tex_position = ttr };
+
+    return data;
+
+  }
+    
+  unsigned int Font::get_vao(glm::vec2 screen_position, char character, glm::vec2 font_size) {
+    
+    unsigned int VAO, VBO;
+    std::array<char_vertex, 4> vertices = get_char_vertex_data(screen_position, character, font_size);
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(char_vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(char_vertex), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(char_vertex), (void*)offsetof(char_vertex, tex_position));
+
+    glBindVertexArray(0);
+
+    return VAO;
+  }
+
+  Label::Label(glm::vec2 p, std::string t, Font f, glm::vec2 fs) : position(p), text(t), font(f), font_size(fs) {
+    unsigned int line = 0;
+    unsigned int column = 0;
+    for (int i = 0; i<this->text.size(); i++) {
+      if (text[i] == '\n') {
+        line++;
+        column = 0;
+      } else {
+        this->character_VAOs.push_back(f.get_vao(this->position + glm::vec2(column * this->font_size.x, - (line * font_size.y)), text[i], font_size));
+        column++;
+      }
+    }
+  }
+
+  void Label::render() {
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, this->font.texture);
+    this->font.font_shader.use();
+    this->font.font_shader.set_uniform<int>("bitmap_font", 1);
+    for (auto &vao : this->character_VAOs) {
+      glBindVertexArray(vao);
+      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+      glBindVertexArray(0);
+    }
+    glUseProgram(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
+
+  Button::Button(glm::vec2 p, glm::vec2 s, std::function<void()> f) :
+    position(p), size(s), button_func(f), 
+    button_shader(Shader("./shader/button_vertex.glsl", "./shader/button_fragment.glsl")) {
+
+    std::array<glm::vec2, 4> button_vertex_data = {
+      p,
+      p + glm::vec2(s.x, 0.0f),
+      p + glm::vec2(0.0f, s.y),
+      p + s
+    };
+
+
+    glGenVertexArrays(1, &this->VAO);
+    glGenBuffers(1, &this->VBO);
+
+    glBindVertexArray(this->VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * button_vertex_data.size(), &button_vertex_data[0], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+
+    glBindVertexArray(0);
+
+  }
+
+  void Button::render() {
+    this->button_shader.use();
+    glBindVertexArray(this->VAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+    glUseProgram(0);
+  }
+
+  bool Button::contains(glm::vec2 current_cursor_position) {
+
+    if (current_cursor_position.x >= this->position.x 
+        && current_cursor_position.x <= this->position.x + this->size.x
+        && current_cursor_position.y >= this->position.y 
+        && current_cursor_position.y <= this->position.y + this->size.y) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
+  Page::Page() {}
+
+  void Page::render() {
+    for (auto &l : this->labels) {
+      l.render();
+    }
+    for (auto &b : this->buttons) {
+      b.render();
+    }
+  }
+
+  Page &Page::add(const Label l) {
+    this->labels.push_back(l);
+    return *this;
+  }
+
+  Page &Page::add(const Button b) {
+    this->buttons.push_back(b);
+    return *this;
+  }
+
+}

@@ -39,6 +39,12 @@ namespace event {
 
   }
 
+  namespace menu {
+
+    void process_input(GLFWwindow *w);
+
+  }
+
 }
 
 #endif

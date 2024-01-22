@@ -116,7 +116,7 @@ namespace event {
     }
 
     void key_esc(Player &p, sdf::Scene &s, GLFWwindow *w) {
-      if (PRESSED(GLFW_KEY_ESCAPE, w)) { 
+      if (PRESSED(GLFW_KEY_ESCAPE, w)) {
         exit(0);
       }
     }

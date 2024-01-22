@@ -55,6 +55,7 @@ namespace level {
     if (s != "vec3") {
       std::cerr << "in object: " << object_name << std::endl;
       std::cerr << VEC3_ERROR << std::endl;
+      std::cerr << "got: " << s << std::endl;
       exit(1);
     } else {
       try {
@@ -71,6 +72,7 @@ namespace level {
     if (s != "vec3") {
       std::cerr << "in object: " << object_name << std::endl;
       std::cerr << VEC3_ERROR << std::endl;
+      std::cerr << "got: " << s << std::endl;
       exit(1);
     } else {
       try {
@@ -87,6 +89,7 @@ namespace level {
     if (s != "vec3") {
       std::cerr << "in object: " << object_name << std::endl;
       std::cerr << VEC3_ERROR << std::endl;
+      std::cerr << "got: " << s << std::endl;
       exit(1);
     } else {
       try {
@@ -103,6 +106,7 @@ namespace level {
     if (s != "float") {
       std::cerr << "in object: " << object_name << std::endl;
       std::cerr << "error parsing level file: expected float" << std::endl;
+      std::cerr << "got: " << s << std::endl;
       exit(1);
     } else {
       try {
@@ -119,6 +123,7 @@ namespace level {
     if (s != "path") {
       std::cerr << "in object: " << object_name << std::endl;
       std::cerr << "error parsing level file: expected file path" << std::endl;
+      std::cerr << "got: " << s << std::endl;
       exit(1);
     } else {
       std::string filepath = *(++i);
@@ -134,6 +139,7 @@ namespace level {
     if (s != "solid") {
       std::cerr << "in object: " << object_name << std::endl;
       std::cerr << "error parsing level file: expected solid indicator" << std::endl;
+      std::cerr << "got: " << s << std::endl;
       exit(1);
     } else {
       try {
@@ -153,6 +159,52 @@ namespace level {
     i++; // closing paren
 
     return obj;
+
+  }
+
+  sdf::AABB parse_AABB(std::vector<std::string>::iterator &i) {
+
+    std::string aabb_name = *(++i);
+    glm::vec3 position, dimensions;
+    std::string s;
+    
+    s = *(++i);
+    if (s != "vec3") {
+      std::cerr << "in AABB declaration: " << aabb_name << std::endl;
+      std::cerr << VEC3_ERROR << std::endl;
+      std::cerr << "got: " << s << std::endl;
+      exit(1);
+    } else {
+      try {
+        position = parse_vec3(i);
+      } catch (...) {
+        std::cerr << "in AABB declaration: " << aabb_name << std::endl;
+        std::cerr << "error parsing level file: invalid value" << std::endl;
+        std::cerr << "value in question: " << *i << std::endl;
+        exit(1);
+      }
+    }
+
+    s = *(++i);
+    if (s != "vec3") {
+      std::cerr << "in AABB declaration: " << aabb_name << std::endl;
+      std::cerr << VEC3_ERROR << std::endl;
+      std::cerr << "got: " << s << std::endl;
+      exit(1);
+    } else {
+      try {
+        dimensions = parse_vec3(i);
+      } catch (...) {
+        std::cerr << "in AABB declaration: " << aabb_name << std::endl;
+        std::cerr << "error parsing level file: invalid value" << std::endl;
+        std::cerr << "value in question: " << *i << std::endl;
+        exit(1);
+      }
+    }
+
+    sdf::AABB aabb(position, dimensions);
+
+    return aabb;
 
   }
 

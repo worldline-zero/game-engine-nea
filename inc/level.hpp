@@ -41,6 +41,8 @@ namespace level {
 
       Level(const std::string level_path);
 
+      void play(GLFWwindow *window);
+
   };
 
   glm::vec3 parse_vec3(std::vector<std::string>::iterator &i); // parses a vec3 ( float float float ). assumes typename has already been parsed

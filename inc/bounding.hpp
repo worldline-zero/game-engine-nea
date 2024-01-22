@@ -105,6 +105,14 @@ namespace sdf {
         return this->children.at(id);
       }
 
+      sdf::AABB operator=(const sdf::AABB &other) {
+        this->position = other.position;
+        this->dimensions = other.dimensions;
+        this->transformation = other.transformation;
+        this->children = other.children;
+        return *this;
+      }
+
   };
 
 } // namespace sdf

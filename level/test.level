@@ -1,6 +1,6 @@
-vec3 2.0 2.0 0.0
+vec3 2.0 30.0 0.0
 
-AABB vec3 0.0 0.0 0.0  vec3 10.0 10.0 10.0 {
+AABB b1 vec3 0.0 0.0 0.0 vec3 10.0 10.0 10.0 {
 
   include level/include.level
   
@@ -25,7 +25,7 @@ AABB vec3 0.0 0.0 0.0  vec3 10.0 10.0 10.0 {
     path res/cube.obj
     solid true
 
-  } [ moving vec3 0.0 -5.0 0.0 2.0 ]
+  } [ moving vec3 0.0 -5.0 0.0 0.2 ]
 
   object o3 {
     
@@ -37,7 +37,7 @@ AABB vec3 0.0 0.0 0.0  vec3 10.0 10.0 10.0 {
     path res/cube.obj
     solid true
 
-  } [ rotate vec3 0.0 1.0 0.0 1.0 ]
+  } [ rotate vec3 0.0 1.0 0.0 10.0 ]
 
   object o4 {
     
@@ -49,6 +49,18 @@ AABB vec3 0.0 0.0 0.0  vec3 10.0 10.0 10.0 {
     path res/cube.obj
     solid true
 
-  } [ moving vec3 15.0 10.0 10.0 2.0 ]
+  } [ moving vec3 -15.0 10.0 10.0 1.0 ]
+
+  object o5 {
+    
+    vec3 5.0 10.0 9.0
+    vec3 2.0 0.2 1.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/cube.obj
+    solid true
+
+  } [ ]
 
 }

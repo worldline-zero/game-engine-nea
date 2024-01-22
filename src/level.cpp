@@ -23,32 +23,25 @@ namespace level {
       }
     }
 
+    std::vector<std::string>::iterator i = tokens_vector.begin();
+
+    this->spawn = parse_vec3(i);
+
     flags_parser fp;
 
-    sdf::AABB bounds(glm::vec3(0.0f), glm::vec3(10.0f));
-
-    for (std::vector<std::string>::iterator i = tokens_vector.begin(); i!=tokens_vector.end(); i++) {
-
-      /*
-      if (*i == "cuboid") {
-        sdf::Cuboid c = *parse_cuboid(i);
-        c = fp(i, this, c);
-        if (fp.functions.find("moving") != fp.functions.end()) {
-          c.velocity = (1.0f / std::any_cast<glm::vec4>(fp.functions["moving"]).w) * (glm::vec3(std::any_cast<glm::vec4>(fp.functions["moving"])) - c.center);
-        }
-        bounds.add_object(c);
-      } else if (*i == "sphere") {
-        sdf::Sphere c = *parse_sphere(i);
-        c = fp(i, this, c);
-        if (fp.functions.find("moving") != fp.functions.end()) {
-          c.velocity = (1.0f / std::any_cast<glm::vec4>(fp.functions["moving"]).w) * (glm::vec3(std::any_cast<glm::vec4>(fp.functions["moving"])) - c.center);
-        }
-        bounds.add_object(c);
-      } else {
-        //std::cout << *i << std::endl;
-      } */
+    std::optional<sdf::AABB> current_bounds = std::nullopt;
+    for (; i!=tokens_vector.end(); i++) {
 
       std::cout << *i << std::endl;
+
+      if (*i == "AABB") {
+        if (current_bounds == std::nullopt) {
+          current_bounds = parse_AABB(i);
+        } else {
+          this->scene.add_volume(current_bounds.value());
+          current_bounds = parse_AABB(i);
+        }
+      }
 
       if (*i == "object") {
         sdf::Object c = parse_object(i);
@@ -61,14 +54,63 @@ namespace level {
         if (fp.functions.find("moving") != fp.functions.end()) {
           c.velocity = (1.0f / std::any_cast<glm::vec4>(fp.functions["moving"]).w) * (glm::vec3(std::any_cast<glm::vec4>(fp.functions["moving"])) - c.position);
         }
-        bounds.add_object(c);
+        current_bounds->add_object(c);
       
         fp.clean();
       }
 
     }
 
-    this->scene.add_volume(bounds);
+    this->scene.add_volume(current_bounds.value());
+
+  }
+
+  void Level::play(GLFWwindow *window) {
+
+    /* reset renderer state */
+    renderer_state.frame_time = 0.0f;
+    renderer_state.last_frame = static_cast<float>(glfwGetTime());
+    renderer_state.current_frame = static_cast<float>(glfwGetTime());
+    renderer_state.total_frames = 0;
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    Shader screen("./shader/vertex.glsl", "./shader/frag.glsl");
+    Player player(this->spawn);
+    this->running = true;
+
+    event::timed_job render_state_update_job(render::update_render_state, -1);
+    render_state_update_job.add_to(this->jobs, std::string("update_job"));
+
+    while (this->running) {
+
+      player.update_dir(1, 2);
+
+      event::game::process_input(player, this->scene, window);
+      this->scene.update();
+      player.update_position(this->scene);
+
+      glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+      screen.use();
+
+      screen.set_matrix<glm::mat4>("view", player.get_view());
+      screen.set_matrix<glm::mat4>("projection", player.get_proj());
+
+      this->scene.render(screen);
+
+      event::address_active_jobs(this->jobs);
+
+      std::cout << player.position << std::endl;
+
+
+      glfwSwapBuffers(window);
+      glfwPollEvents();
+    }
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
 
   }
 

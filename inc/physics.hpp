@@ -35,7 +35,7 @@
  *   )
  *
  * My implementation is not copied from these sources word for word (as their own implementations are in different languages,
- * and not directly applicable to my own codebase) are but is inspired by them,
+ * and not directly applicable to my own codebase) but are inspired by them,
  * and so they should take credit for the details of the implementation and description of methods involved.
  *
  */
