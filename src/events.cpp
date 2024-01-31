@@ -105,7 +105,7 @@ namespace event {
 
     glm::vec3 key_space(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
       glm::vec3 new_velocity = glm::vec3(0.0f);
-      if (PRESSED(GLFW_KEY_SPACE, w) && p.direction_counter[UP] == 1/* && p.grounded*/) {
+      if (PRESSED(GLFW_KEY_SPACE, w) && p.direction_counter[UP] == 1 && p.grounded) {
         new_velocity = glm::vec3(0.0f, 20.0f, 0.0f);
         p.direction_counter[UP]++;
         p.direction_counter[DOWN] = 1;
@@ -188,5 +188,34 @@ namespace event {
     }
 
   } // namespace game
+
+  namespace menu {
+
+    unsigned int input_delay = 0;
+
+    void process_input(GLFWwindow *w, gui::GUI *g) {
+
+      int state = glfwGetMouseButton(w, GLFW_MOUSE_BUTTON_LEFT);
+      if (state == GLFW_PRESS && input_delay == 0) {
+
+        input_delay = 20;
+
+        for (auto &b : g->pages[g->current_page].buttons) {
+          if (b.contains(gui::get_cursor_position(w))) {
+            b.button_func();
+          }
+        }
+
+      }
+
+      if (input_delay != 0) {
+        input_delay--;
+      }
+
+    }
+
+  } // namespace menu
+
+
 
 }

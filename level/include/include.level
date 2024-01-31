@@ -6,6 +6,7 @@ object included_object {
   float 45.0
 
   path res/cube.obj
+  color 255 180 220 255
   solid true
 
-} [ end ]
+} [ end light 1.0 ]

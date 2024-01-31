@@ -13,9 +13,11 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "./scene.hpp"
-#include "./physics.hpp"
-#include "./events.hpp"
+#include "../inc/scene.hpp"
+#include "../inc/physics.hpp"
+#include "../inc/events.hpp"
+#include "../inc/ssbo.hpp"
+#include "../inc/game_menu.hpp"
 
 extern struct renderer_state_container renderer_state;
 
@@ -23,6 +25,11 @@ extern struct renderer_state_container renderer_state;
 namespace level {
 
   typedef boost::tokenizer<boost::char_separator<char>> Tokenizer;
+
+  struct light_info {
+    glm::vec4 color_and_intensity;
+    glm::vec4 position;
+  };
 
   class Level {
 
@@ -34,22 +41,24 @@ namespace level {
       unsigned int end_ID;
 
       glm::vec3 spawn;
+      float kill_floor;
 
       bool running;
+      bool completed;
+
+      unsigned int time_running;
 
       std::map<std::string, event::timed_job> jobs;
 
       Level(const std::string level_path);
 
-      void play(GLFWwindow *window);
+      void play(GLFWwindow *window, gui::GUI *g);
 
   };
 
-  glm::vec3 parse_vec3(std::vector<std::string>::iterator &i); // parses a vec3 ( float float float ). assumes typename has already been parsed
+  glm::vec3 parse_vec3(std::vector<std::string>::iterator &i);
 
-//  std::unique_ptr<sdf::Cuboid> parse_cuboid(Tokenizer::iterator &i); // parses a cuboid. cuboid name already parsed when called.
-
-//  std::unique_ptr<sdf::Sphere> parse_sphere(Tokenizer::iterator &i);
+  glm::uvec4 parse_color(std::vector<std::string>::iterator &i);
 
   sdf::Object parse_object(std::vector<std::string>::iterator &i);
 
@@ -68,29 +77,39 @@ namespace level {
       std::map<std::string, std::any> functions;
 
       sdf::Object &operator()(std::vector<std::string>::iterator &i, Level *l, sdf::Object &object) {
+
         while (*(++i) != "]") {
+
+
           if (*i == "start") {
             this->functions.insert(std::make_pair("start", 0u));
             auto collision_behaviour = [](physics::collision_info cb, sdf::Object &object, Level *l) {
               auto temp_opt_timed_job =  
               [](unsigned int ct, unsigned int tt, Level *l) {
-                std::cout << ct<< std::endl;
-                if (ct > 5000) {
+                std::cout << ct << std::endl;
+                l->time_running = ct;
+                if (ct > 50000) {
                   l->running = false;
+                  l->completed = true;
                 }
               };
-              object.opt_timed_job = event::timed_job(std::bind(temp_opt_timed_job, std::placeholders::_1, std::placeholders::_2, l), 5000);
+              object.opt_timed_job = event::timed_job(std::bind(temp_opt_timed_job, std::placeholders::_1, std::placeholders::_2, l), -1);
               object.opt_timed_job.value().add_to(l->jobs, std::to_string(object.ID) + "start_func");
             };
             object.collision_behaviour = std::bind(collision_behaviour, std::placeholders::_1, object, l);
           }
+
+
           if (*i == "end") {
             this->functions.insert(std::make_pair("end", 0u));
             auto collision_behaviour = [](physics::collision_info cb, Level *l) {
               l->running = false;
+              l->completed = true;
             };
             object.collision_behaviour = std::bind(collision_behaviour, std::placeholders::_1, l);
           }
+
+
           if (*i == "moving") {
             if (*(++i) != "vec3") {
               std::cerr << "error parsing level file: expected vec3" << std::endl;
@@ -125,6 +144,7 @@ namespace level {
 
           }
 
+
           if (*i == "rotate") {
             if (*(++i) != "vec3") {
               std::cerr << "error parsing level file: expected vec3" << std::endl;
@@ -151,6 +171,32 @@ namespace level {
             
           }
 
+
+          if (*i == "accelerate") {
+            if (*(++i) != "vec3") {
+              std::cerr << "error parsing level file: expected vec3" << std::endl;
+              std::cerr << "got: " << *i << std::endl;
+              exit(1);
+            } else {
+              glm::vec3 acceleration_factor = parse_vec3(i);
+              object.acceleration = acceleration_factor;
+            }
+          }
+
+
+          if (*i == "light") {
+            float intensity = 0.0f;
+            try {
+              intensity = boost::lexical_cast<float>(*(++i));
+            } catch (...) {
+              std::cerr << "error parsing level file: invalid value" << std::endl;
+              std::cerr << "expected float, got: " << *i << std::endl;
+              exit(1);
+            }
+            object.light_intensity = intensity;
+          }
+
+
         }
         return object;
       }
@@ -158,6 +204,10 @@ namespace level {
       void clean();
 
   };
+
+  void render_fps_counter(gui::Font f);
+
+  void render_timer(gui::Font f, unsigned int current_time);
 
 }
 

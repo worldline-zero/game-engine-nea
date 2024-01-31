@@ -101,11 +101,29 @@ namespace gui {
 
       void render();
 
-      Page &add(const Label l);
+      Page &operator<<(const Label l); // add label
 
-      Page &add(const Button b);
+      Page &operator<<(const Button b); // add button
 
   };
+
+  class GUI {
+
+    public:
+
+      std::map<std::string, Page> pages;
+
+      std::string current_page;
+
+      GUI(std::string start_window);
+
+      void render();
+
+      GUI &operator<<(const std::pair<std::string, Page> p);
+
+  };
+
+  void change_displayed_page(GUI *g, std::string new_page_name); // function seperate from GUI class to allow for parameter binding
 
 
 }

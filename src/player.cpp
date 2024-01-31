@@ -19,7 +19,8 @@ Player::Player(glm::vec3 spawn_point) :
   position(spawn_point), 
   previous_position(spawn_point), 
   up(glm::vec3(0.0f, 1.0f, 0.0f)),
-  player_bounds(sdf::Capsule(spawn_point - (up * 1.5f), spawn_point + (up * 0.5f), 0.4f))
+  player_bounds(sdf::Capsule(spawn_point - (up * 1.5f), spawn_point + (up * 0.5f), 0.4f)),
+  object_velocity_last_frame(glm::vec3(0.0f))
 {}
 
 glm::mat4 Player::get_view() {
@@ -71,7 +72,7 @@ void Player::update_position(sdf::Scene scene) {
     this->direction_counter[DOWN] = 1;
   }
 
-  glm::vec3 frame_velocity = velocity * renderer_state.frame_time;
+  glm::vec3 frame_velocity =this->velocity * renderer_state.frame_time;
 
   glm::vec3 new_position = this->position + frame_velocity;
 
@@ -82,8 +83,10 @@ void Player::update_position(sdf::Scene scene) {
   glm::vec3 new_velocity = physics::collision_response(frame_velocity, collision_tests, this->up, this->grounded);
   
   glm::vec3 object_velocity = glm::vec3(0.0f);
+  glm::vec3 extra_acceleration = glm::vec3(0.0f);
   for (const auto &ci:collision_tests) {
     if (ci.hit) {
+      extra_acceleration += ci.acceleration;
       object_velocity += ci.object_velocity;// * ((this->position + new_velocity) - ci.object_position);
     }
   }
@@ -97,17 +100,19 @@ void Player::update_position(sdf::Scene scene) {
   // do not put anything within the pragma clang diagnostic ignored "-Wunused-variable" section other than this calculation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
-  volatile glm::vec3 t = renderer_state.frame_time / new_velocity;
+  volatile glm::vec3 t1 = renderer_state.frame_time / new_velocity;
+  volatile glm::vec3 t2 = this->velocity + extra_acceleration + object_velocity;
 #pragma clang diagnostic pop
 
 
   if (renderer_state.frame_time > 0.00001) {
     this->velocity = glm::vec3(new_velocity / renderer_state.frame_time);
+    this->velocity += extra_acceleration;
   }
 
   //std::cout << object_velocity << std::endl;
   
-  this->position += new_velocity + object_velocity;
+  this->position += this->velocity * renderer_state.frame_time + object_velocity;
   this->previous_bounds = this->player_bounds;
   this->update_bounds(1, 2);
 }

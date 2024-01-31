@@ -8,9 +8,9 @@ namespace sdf {
     this->volumes.insert(std::make_pair(volume.ID, volume));
   }
 
-  void Scene::render(Shader &s) const {
+  void Scene::render(Shader &s, Shader &l, glm::vec3 position) const {
     for (const auto &[vol_id, vol] : this->volumes) {
-      vol.render(s);
+      vol.render(s, l, position);
     }
   }
 

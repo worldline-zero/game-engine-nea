@@ -70,6 +70,7 @@ namespace gui {
       { '.' , glm::vec2(0.625f, 0.5f) },
       { ',' , glm::vec2(0.75f, 0.5f) },
       { '!' , glm::vec2(0.875f, 0.5f) },
+      { ':' , glm::vec2(0.0f, 0.625f) },
     };
     this->texture = texture_from_image(this->font_path, GL_TEXTURE1);
   }
@@ -210,14 +211,29 @@ namespace gui {
     }
   }
 
-  Page &Page::add(const Label l) {
+  Page &Page::operator<<(const Label l) {
     this->labels.push_back(l);
     return *this;
   }
 
-  Page &Page::add(const Button b) {
+  Page &Page::operator<<(const Button b) {
     this->buttons.push_back(b);
     return *this;
+  }
+
+  GUI::GUI(std::string start_window) : current_page(start_window) {}
+
+  void GUI::render() {
+    this->pages[this->current_page].render();
+  }
+
+  GUI &GUI::operator<<(const std::pair<std::string, Page> p) {
+    this->pages.insert(p);
+    return *this;
+  }
+
+  void change_displayed_page(GUI *g, std::string new_page_name) {
+    g->current_page = new_page_name;
   }
 
 }

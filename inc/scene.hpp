@@ -33,7 +33,7 @@ namespace sdf {
 
       void add_volume(sdf::AABB volume);
 
-      void render(Shader &s) const;
+      void render(Shader &s, Shader &l, glm::vec3 position) const;
 
       void update();
 

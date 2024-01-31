@@ -99,10 +99,39 @@ namespace sdf {
     this->transformation = tr * sc;
   }
 
-  void AABB::render(Shader &s) const {
+  void AABB::render(Shader &s, Shader &l, glm::vec3 position) const {
+    std::map<float, sdf::Object> sorted_transparent_objects;
     for (const auto &[obj_id, obj]:this->children) {
-      s.set_matrix<glm::mat4>("model", obj.transformation);
-      obj.mesh.draw();
+      if (obj.color.w < 255) {
+        float distance_to_object = glm::length(position - obj.position);
+        sorted_transparent_objects.insert(std::make_pair(distance_to_object, obj));
+      } else {
+        if (obj.light_intensity > 0.0f) {
+          l.use();
+          l.set_matrix<glm::mat4>("model", obj.transformation);
+          l.set_vector<glm::vec4>("input_color", obj.color / glm::vec4(255.0f));
+        } else {
+          s.use();
+          s.set_matrix<glm::mat4>("model", obj.transformation);
+          s.set_vector<glm::vec4>("input_color", obj.color / glm::vec4(255.0f));
+        }
+        obj.mesh.draw();
+      }
+    }
+
+    for (const auto &[t_id, tp_obj]:sorted_transparent_objects) {
+
+      if (tp_obj.light_intensity > 0.0f) {
+        l.use();
+        l.set_matrix<glm::mat4>("model", tp_obj.transformation);
+        l.set_vector<glm::vec4>("input_color", tp_obj.color / glm::vec4(255.0f));
+      } else {
+        s.use();
+        s.set_matrix<glm::mat4>("model", tp_obj.transformation);
+        s.set_vector<glm::vec4>("input_color", tp_obj.color / glm::vec4(255.0f));
+      }
+      tp_obj.mesh.draw();
+
     }
   }
 

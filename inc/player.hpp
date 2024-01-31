@@ -54,6 +54,8 @@ class Player {
     sdf::Capsule player_bounds;
     sdf::Capsule previous_bounds;
 
+    glm::vec3 object_velocity_last_frame;
+
     Player(glm::vec3 spawn_point);
 
     glm::mat4 get_view();

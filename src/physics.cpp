@@ -110,9 +110,7 @@ namespace physics {
     collision_info sphere_test;
     sphere_test.depth = 0.0f;
 
-    //std::cout << "mesh size in vertices: " << mesh.vertices.size() << std::endl;
-
-    for (int i = 0; i<=mesh.vertices.size(); i+=3) {
+    for (int i = 0; i<mesh.vertices.size(); i+=3) {
       //std::cout << i << std::endl;
       glm::vec3 p0 = glm::vec3(transformation * glm::vec4(mesh.vertices[i].position, 1.0f));
       glm::vec3 p1 = glm::vec3(transformation * glm::vec4(mesh.vertices[i+1].position, 1.0f));
@@ -204,6 +202,7 @@ namespace physics {
         if (obj.solid) {
           collision_test_result.object_velocity = obj.velocity; // + obj.rotational_velocity;
           collision_test_result.object_position = obj.position;
+          collision_test_result.acceleration = obj.acceleration;
           collisions.push_back(collision_test_result);
         }
         if (collision_test_result.hit) {
@@ -260,6 +259,8 @@ namespace physics {
       } else {
         ground = false;
       }
+
+      std::cout << ground << std::endl;
 
       return reduced_velocity + leftover_velocity;// + (std::abs(glm::dot(velocity, normal)) * (glm::normalize(reduced_velocity + leftover_velocity) + normal) * glm::length(reduced_velocity + leftover_velocity));
 

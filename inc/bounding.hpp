@@ -11,75 +11,6 @@
 
 namespace sdf {
 
-  /*
-
-  class bounding_volume {
-
-    public:
-      
-      using child_type = std::variant<Sphere, Cuboid, Arbitrary>;
-
-      using child_container = std::map<unsigned int, child_type>;
-
-
-      child_container children;
-
-      glm::mat4 transformation;
-      unsigned int ID;
-      object_type_id type;
-
-
-      template <class T>
-      void add_object(const T object) {
-        child_type new_child = object;
-        children.insert(std::make_pair(object.ID, new_child));
-      }
-
-      void print_children();
-
-      void render(Shader &s);
-
-      child_type &operator[](const unsigned int id) {
-        return children.at(id);
-      }
-
-  };
-
-  class AABB : public bounding_volume {
-
-    public:
-
-      glm::vec3 center;
-      glm::vec3 half_dimensions;
-
-      AABB();
-
-      AABB(glm::vec3 c, glm::vec3 half_d);
-
-      void details();
-
-      float dist(glm::vec3 pos);
-
-  };
-
-  class bounding_sphere : public bounding_volume {
-
-    public:
-
-      glm::vec3 center;
-      float radius;
-
-      bounding_sphere();
-
-      bounding_sphere(glm::vec3 c, float r);
-
-      void details();
-
-      float dist(glm::vec3 pos);
-
-  };
-
-  */
 
   class AABB {
 
@@ -97,7 +28,7 @@ namespace sdf {
 
       void construct_matrix();
 
-      void render(Shader &s) const;
+      void render(Shader &s, Shader &l, glm::vec3 position) const;
 
       void add_object(sdf::Object);
 

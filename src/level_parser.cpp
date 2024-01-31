@@ -32,6 +32,15 @@ namespace level {
     return glm::vec3(x, y, z);
   }
 
+  glm::uvec4 parse_color(std::vector<std::string>::iterator &i) {
+    unsigned int r, g, b, a;
+    r = boost::lexical_cast<float>(*(++i));
+    g = boost::lexical_cast<float>(*(++i));
+    b = boost::lexical_cast<float>(*(++i));
+    a = boost::lexical_cast<float>(*(++i));
+    return glm::uvec4(r, g, b, a);
+  }
+
 
   sdf::Object parse_object(std::vector<std::string>::iterator &i) {
 
@@ -41,6 +50,7 @@ namespace level {
     float angle;
     bool solid;
     sdf::Mesh mesh;
+    glm::vec4 obj_color;
 
     std::string object_name = *(++i);
 
@@ -136,6 +146,24 @@ namespace level {
     }
 
     s = *(++i);
+    if (s != "color") {
+      std::cerr << "in object: " << object_name << std::endl;
+      std::cerr << "error parsing level file: expected color" << std::endl;
+      std::cerr << "got: " << s << std::endl;
+      exit(1);
+    } else {
+      try {
+        obj_color = parse_color(i);
+      } catch (...) {
+        std::cerr << "in object: " << object_name << std::endl;
+        std::cerr << "error parsing level file: invalid value" << std::endl;
+        std::cerr << "value in question: " << *i << std::endl;
+        exit(1);
+      }
+    }
+
+
+    s = *(++i);
     if (s != "solid") {
       std::cerr << "in object: " << object_name << std::endl;
       std::cerr << "error parsing level file: expected solid indicator" << std::endl;
@@ -154,6 +182,7 @@ namespace level {
     
     sdf::Object obj(mesh, position, scale, rotation, angle);
     obj.solid = solid;
+    obj.color = obj_color;
 
     i++;
     i++; // closing paren
@@ -212,7 +241,7 @@ namespace level {
 
     std::ifstream file(include_path);
     std::string src((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
-    boost::char_separator<char> sep("\n ");
+    boost::char_separator<char> sep("\n\t\a ");
     Tokenizer tokens(src, sep);
 
     std::vector<std::string> tokens_vector;
@@ -221,7 +250,12 @@ namespace level {
       tokens_vector.push_back(*i);
     }
 
+    int old_index = original_file.size() - 1;
+
     original_file.insert(i + 1, tokens_vector.begin(), tokens_vector.end());
+
+    i = original_file.begin() + old_index;
+
 
   }
 

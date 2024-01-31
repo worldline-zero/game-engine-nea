@@ -17,3 +17,5 @@ print("{ ',' , glm::vec2("+str(((i-ord('A')) % 8)/8.0)+"f, "+str(((i-ord('A'))//
 i += 1
 print("{ '!' , glm::vec2("+str(((i-ord('A')) % 8)/8.0)+"f, "+str(((i-ord('A'))//8)/8.0)+"f) },")
 i += 1
+print("{ ':' , glm::vec2("+str(((i-ord('A')) % 8)/8.0)+"f, "+str(((i-ord('A'))//8)/8.0)+"f) },")
+i += 1

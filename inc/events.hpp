@@ -9,9 +9,10 @@
 #include <ratio>
 #include <vector>
 
-#include "./player.hpp"
-#include "./scene.hpp"
-#include "./renderer_state.hpp"
+#include "../inc/player.hpp"
+#include "../inc/scene.hpp"
+#include "../inc/renderer_state.hpp"
+#include "../inc/gui.hpp"
 
 #define PRESSED(A, B) (glfwGetKey(B, A) == GLFW_PRESS)
 
@@ -41,7 +42,7 @@ namespace event {
 
   namespace menu {
 
-    void process_input(GLFWwindow *w);
+    void process_input(GLFWwindow *w, gui::GUI *g);
 
   }
 

@@ -174,7 +174,9 @@ namespace sdf {
     rotation(r),
     angle(a),
     mesh(m),
+    light_intensity(0.0f),
     velocity(glm::vec3(0.0f)),
+    acceleration(glm::vec3(0.0f)),
     rotational_velocity(1.0f)
   {
     construct_matrix();

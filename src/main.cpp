@@ -11,6 +11,7 @@
 #include "../inc/renderer_state.hpp"
 #include "../inc/level.hpp"
 #include "../inc/gui.hpp"
+#include "../inc/game_menu.hpp"
 
 extern struct renderer_state_container renderer_state;
 
@@ -20,50 +21,32 @@ int main() {
 
   GLFWwindow* window = loader::load_gl();
   glfwSetCursorPosCallback(window, event::game::mouse_callback);
-  //glfwSwapInterval(0);
+  glfwSwapInterval(1);
 
   if (window == NULL) {
     std::cerr << "error: window not initialised" << std::endl;
     exit(1);
   }
 
-  auto exit_button_func = []() -> void {
-    exit(0);
-  };
+  gui::GUI menu("title_screen");
 
-  auto start_button_func = [&window]() -> void {
-    level::Level test_level("./level/test.level");
-    test_level.play(window);
-  };
+  gui::Page level_screen = game::get_level_selector(&menu, window, "./level/");
+  gui::Page title_screen = game::get_title_screen(&menu, window);
+  gui::Page fail_screen = game::get_fail_screen(&menu, window);
 
-  gui::Button exit_button(gui::pixel_cast<NDC>(0, 555), gui::pixel_cast<SIZE>(40, 45), exit_button_func);
-  gui::Button start_button(gui::pixel_cast<NDC>(300, 220), gui::pixel_cast<SIZE>(180, 35), start_button_func);
-
-  gui::Font font("./res/bitmap_font1.png");
-  gui::Label exit_label(gui::pixel_cast<NDC>(0, 560), "X", font, gui::pixel_cast<SIZE>(40, 40));
-  gui::Label start_label(gui::pixel_cast<NDC>(300, 225), "START!", font, gui::pixel_cast<SIZE>(30, 25));
-
-  gui::Page title_screen;
-  title_screen.add(exit_button).add(start_button).add(exit_label).add(start_label);
-
+  menu 
+    << std::make_pair("level_selector", level_screen) 
+    << std::make_pair("title_screen", title_screen)
+    << std::make_pair("fail_screen", fail_screen);
 
   for (;;) {
 
     glClearColor(0.1f, 0.1f, 0.6f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-    if (state == GLFW_PRESS) {
+    event::menu::process_input(window, &menu);
 
-      for (auto &b : title_screen.buttons) {
-        if (b.contains(gui::get_cursor_position(window))) {
-          b.button_func();
-        }
-      }
-
-    }
-
-    title_screen.render();
+    menu.render();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
