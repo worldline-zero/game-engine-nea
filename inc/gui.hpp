@@ -64,9 +64,10 @@ namespace gui {
       std::string text;
       Font font;
       glm::vec2 font_size; // width and height of each character
+      glm::vec4 color;
       std::vector<unsigned int> character_VAOs;
       
-      Label(glm::vec2 p, std::string t, Font f, glm::vec2 fs);
+      Label(glm::vec2 p, std::string t, Font f, glm::vec2 fs, glm::vec4 fc);
 
       void render();
 

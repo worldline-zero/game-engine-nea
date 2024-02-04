@@ -90,7 +90,6 @@ namespace level {
                 l->time_running = ct;
                 if (ct > 50000) {
                   l->running = false;
-                  l->completed = true;
                 }
               };
               object.opt_timed_job = event::timed_job(std::bind(temp_opt_timed_job, std::placeholders::_1, std::placeholders::_2, l), -1);

@@ -124,7 +124,7 @@ namespace gui {
     return VAO;
   }
 
-  Label::Label(glm::vec2 p, std::string t, Font f, glm::vec2 fs) : position(p), text(t), font(f), font_size(fs) {
+  Label::Label(glm::vec2 p, std::string t, Font f, glm::vec2 fs, glm::vec4 fc) : position(p), text(t), font(f), font_size(fs), color(fc) {
     unsigned int line = 0;
     unsigned int column = 0;
     for (int i = 0; i<this->text.size(); i++) {
@@ -143,6 +143,7 @@ namespace gui {
     glBindTexture(GL_TEXTURE_2D, this->font.texture);
     this->font.font_shader.use();
     this->font.font_shader.set_uniform<int>("bitmap_font", 1);
+    this->font.font_shader.set_vector<glm::vec4>("font_color", this->color);
     for (auto &vao : this->character_VAOs) {
       glBindVertexArray(vao);
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -156,11 +157,11 @@ namespace gui {
     position(p), size(s), button_func(f), 
     button_shader(Shader("./shader/button_vertex.glsl", "./shader/button_fragment.glsl")) {
 
-    std::array<glm::vec2, 4> button_vertex_data = {
-      p,
-      p + glm::vec2(s.x, 0.0f),
-      p + glm::vec2(0.0f, s.y),
-      p + s
+    std::array<glm::vec2, 8> button_vertex_data = {
+      p, glm::vec2(0.0f, 0.0f),
+      p + glm::vec2(s.x, 0.0f), glm::vec2(1.0f, 0.0f),
+      p + glm::vec2(0.0f, s.y), glm::vec2(0.0f, 1.0f),
+      p + s, glm::vec2(1.0f)
     };
 
 
@@ -173,7 +174,9 @@ namespace gui {
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * button_vertex_data.size(), &button_vertex_data[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2) * 2, (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2) * 2, (void*)(sizeof(glm::vec2)));
 
     glBindVertexArray(0);
 

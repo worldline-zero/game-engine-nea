@@ -37,14 +37,18 @@ namespace game {
     gui::Label exit_label(
        gui::pixel_cast<NDC>(exit_button_x, exit_button_y + padding/2),
        "X",
-       font, gui::pixel_cast<SIZE>(character_size, character_size)
+       font,
+       gui::pixel_cast<SIZE>(character_size, character_size),
+       glm::vec4(glm::vec3(0), 1)
     );
 
     gui::Label start_label(
         gui::pixel_cast<NDC>(SCREEN_WIDTH/2 - (start_text.size()/2) * character_size, SCREEN_HEIGHT/2 - character_size/2),
         start_text,
         font,
-        gui::pixel_cast<SIZE>(character_size, character_size));
+        gui::pixel_cast<SIZE>(character_size, character_size),
+        glm::vec4(glm::vec3(0), 1)
+    );
 
     gui::Page title_screen;
     title_screen << exit_button << start_button << exit_label << start_label;
@@ -97,7 +101,8 @@ namespace game {
               gui::pixel_cast<NDC>((SCREEN_WIDTH/2) - 30 * (level_alert_text.size()/2), 10),
               level_alert_text,
               bitmap_font,
-              gui::pixel_cast<SIZE>(30, 30)
+              gui::pixel_cast<SIZE>(30, 30),
+              glm::vec4(0, 0, 0, 1)
           );
           level_selector << level_count_alert;
           std::cout << "too many levels!" << std::endl;
@@ -115,7 +120,8 @@ namespace game {
           gui::pixel_cast<NDC>(button_x + padding, button_y + padding),
           cleaned_name,
           bitmap_font,
-          gui::pixel_cast<SIZE>(character_width, button_height - (padding * 2))
+          gui::pixel_cast<SIZE>(character_width, button_height - (padding * 2)),
+          glm::vec4(glm::vec3(0), 1)
       );
 
       button_x += button_length + padding;
@@ -129,7 +135,8 @@ namespace game {
         gui::pixel_cast<NDC>((SCREEN_WIDTH/2) - 40 * (page_title.size()/2), SCREEN_HEIGHT - 40),
         page_title,
         bitmap_font,
-        gui::pixel_cast<SIZE>(40, 40)
+        gui::pixel_cast<SIZE>(40, 40),
+        glm::vec4(0, 0, 0, 1)
     );
 
     level_selector << title;
@@ -137,7 +144,7 @@ namespace game {
     std::string back_label_text = "BACK";
     auto back_button_func = std::bind(gui::change_displayed_page, g, "title_screen");
     gui::Button back_button(gui::pixel_cast<NDC>(10, 10), gui::pixel_cast<SIZE>(70, 25), back_button_func);
-    gui::Label back_label(gui::pixel_cast<NDC>(15, 15), back_label_text, bitmap_font, gui::pixel_cast<SIZE>(15, 15));
+    gui::Label back_label(gui::pixel_cast<NDC>(15, 15), back_label_text, bitmap_font, gui::pixel_cast<SIZE>(15, 15), glm::vec4(glm::vec3(0), 1));
 
     level_selector << back_button << back_label;
 
@@ -167,14 +174,16 @@ namespace game {
         gui::pixel_cast<NDC>(SCREEN_WIDTH/2 - (accept_text.size()/2) * character_size, SCREEN_HEIGHT/2 - character_size/2),
         accept_text,
         bitmap_font,
-        gui::pixel_cast<SIZE>(character_size, character_size)
+        gui::pixel_cast<SIZE>(character_size, character_size),
+        glm::vec4(glm::vec3(0), 1)
     );
 
     gui::Label fail_label(
         gui::pixel_cast<NDC>(SCREEN_WIDTH/2 - (fail_text.size()/2) * character_size, SCREEN_HEIGHT - padding - character_size),
         fail_text,
         bitmap_font,
-        gui::pixel_cast<SIZE>(character_size, character_size)
+        gui::pixel_cast<SIZE>(character_size, character_size),
+        glm::vec4(0, 0, 0, 1)
     );
 
     gui::Page fail_page;
@@ -209,21 +218,24 @@ namespace game {
         gui::pixel_cast<NDC>(SCREEN_WIDTH/2 - (accept_text.size()/2) * character_size, SCREEN_HEIGHT/2 - character_size/2),
         accept_text,
         bitmap_font,
-        gui::pixel_cast<SIZE>(character_size, character_size)
+        gui::pixel_cast<SIZE>(character_size, character_size),
+        glm::vec4(glm::vec3(0), 1)
     );
 
     gui::Label win_label(
         gui::pixel_cast<NDC>(SCREEN_WIDTH/2 - (win_text.size()/2) * character_size, SCREEN_HEIGHT - padding - character_size),
         win_text,
         bitmap_font,
-        gui::pixel_cast<SIZE>(character_size, character_size)
+        gui::pixel_cast<SIZE>(character_size, character_size),
+        glm::vec4(0, 0, 0, 1)
     );
 
     gui::Label time_label(
         gui::pixel_cast<NDC>(SCREEN_WIDTH/2 - (time_text.size()/2) * character_size, SCREEN_HEIGHT - 2 * padding - 2 * character_size),
         time_text,
         bitmap_font,
-        gui::pixel_cast<SIZE>(character_size, character_size)
+        gui::pixel_cast<SIZE>(character_size, character_size),
+        glm::vec4(0, 0, 0, 1)
     );
 
     gui::Page win_page;

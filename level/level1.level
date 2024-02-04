@@ -16,6 +16,19 @@ AABB b1 vec3 0.0 0.0 0.0 vec3 10.0 10.0 10.0 {
 
   } [ light 1.0 ]
 
+  object runway {
+    
+    vec3 0.0 -1.0 -100.0
+    vec3 4.0 0.5 90.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/cube.obj
+    color 240 240 240 255
+    solid true
+
+  } [ light 1.0 ]
+
   object start_gate {
 
     vec3 4.0 1.0 0.0
@@ -206,23 +219,156 @@ AABB b1 vec3 0.0 0.0 0.0 vec3 10.0 10.0 10.0 {
     float 0.0
 
     path res/cube.obj
-    color 240 240 240 255
+    color 230 200 240 255
     solid true
 
-  } [ end light 1.0 ]
+  } [ accelerate vec3 0.0 300.0 0.0 ]
 
-  object upwards_tunnel {
+  object t1 {
     
-    vec3 360.0 -50.0 -3.0
-    vec3 4.0 4.0 30.0
-    vec3 0.0 1.0 1.0
-    float 90.0
+    vec3 326.0 -40.0 -8.0
+    vec3 4.0 30.0 0.5
+    vec3 1.0 1.0 1.0
+    float 0.0
 
-    path res/tunnel.obj
+    path res/cube.obj
     color 240 240 240 255
     solid true
 
-  } [ accelerate vec3 1.0 0.0 0.0 ]
+  } [ ]
+
+  object t2 {
+    
+    vec3 326.0 -40.0 2.0
+    vec3 4.0 30.0 0.5
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/cube.obj
+    color 240 240 240 255
+    solid true
+
+  } [ ]
+
+  object tl1 {
+    
+    vec3 332.0 -50.0 -3.0
+    vec3 1.0 1.0 1.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/sphere.obj
+    color 230 200 240 255
+    solid false
+
+  } [ light 1.0 ]
+
+
+  object tl2 {
+    
+    vec3 332.0 -30.0 -3.0
+    vec3 1.0 1.0 1.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/sphere.obj
+    color 230 200 240 255
+    solid false
+
+  } [ light 1.0 ]
+
+
+
+  object tl3 {
+    
+    vec3 332.0 -10.0 -3.0
+    vec3 1.0 1.0 1.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/sphere.obj
+    color 230 200 240 255
+    solid false
+
+  } [ light 1.0 ]
+
+  object fp1 {
+    
+    vec3 336.0 -15.0 -3.0
+    vec3 3.0 0.5 3.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/cube.obj
+    color 240 240 240 255
+    solid true
+
+  } [ ]
+
+  object fp2 {
+    
+    vec3 352.0 -15.0 -9.0
+    vec3 3.0 0.5 3.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/cube.obj
+    color 240 240 240 255
+    solid true
+
+  } [ ]
+
+  object fp3 {
+    
+    vec3 368.0 -15.0 3.0
+    vec3 3.0 0.5 3.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/cube.obj
+    color 240 240 240 255
+    solid true
+
+  } [ ]
+
+  object tl4 {
+    
+    vec3 384.0 0.0 -3.0
+    vec3 1.0 1.0 1.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/sphere.obj
+    color 230 200 240 255
+    solid false
+
+  } [ light 1.0 ]
+
+  object torus1 {
+
+    vec3 384.0 -25.0 -3.0
+    vec3 8.0 8.0 8.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/torus.obj
+    color 240 240 240 255
+    solid true
+
+  } [ rotate vec3 1.0 0.5 1.0 1.0 ]
+
+  object ending_platform {
+
+    vec3 384.0 -40.0 -3.0
+    vec3 4.0 0.5 4.0
+    vec3 1.0 1.0 1.0
+    float 0.0
+
+    path res/cube.obj
+    color 240 240 240 255
+    solid true
+
+  } [ end ]
 
 
 }

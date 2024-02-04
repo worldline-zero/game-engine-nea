@@ -132,15 +132,7 @@ namespace level {
 
       this->scene.render(object_shader, light_shader, player.position);
 
-      /*
-      gui::Label fps_label(
-          gui::pixel_cast<NDC>(0, SCREEN_HEIGHT - character_size),
-          "FPS: " + std::to_string(1.0f/renderer_state.frame_time),
-          bitmap_font,
-          gui::pixel_cast<SIZE>(character_size, character_size)
-      );
-      fps_label.render();
-      */
+      std::cout << player.velocity << std::endl; 
 
       render_fps_counter(bitmap_font);
       render_timer(bitmap_font, this->time_running);
@@ -186,7 +178,8 @@ namespace level {
         gui::pixel_cast<NDC>(0, 0),
         "FPS: " + std::to_string(1.0f/renderer_state.frame_time),
         f,
-        gui::pixel_cast<SIZE>(fps_character_size, fps_character_size)
+        gui::pixel_cast<SIZE>(fps_character_size, fps_character_size),
+        glm::vec4(glm::vec3(0), 1)
     );
     fps_label.render();
 
@@ -201,7 +194,8 @@ namespace level {
         gui::pixel_cast<NDC>(SCREEN_WIDTH/2 - (time_text.size()/2) * timer_character_size, SCREEN_HEIGHT - timer_character_size),
         time_text,
         f,
-        gui::pixel_cast<SIZE>(timer_character_size, timer_character_size)
+        gui::pixel_cast<SIZE>(timer_character_size, timer_character_size),
+        glm::vec4(glm::vec3(0), 1)
     );
     timer_label.render();
 
