@@ -24,6 +24,8 @@ namespace physics {
 
   collision_info sphere_triangle_collision(glm::vec3 center, float radius, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 N) {
     collision_info result;
+    // calculation below offsets the center of the sphere used in the capsule to prevent clipping through the underside of objects
+    // not a great solution, but it provides satisfactory results
     center += glm::vec3(0.0f, glm::max(glm::dot(glm::vec3(0.0f, -1.0f, 0.0f), N), 0.0f), 0.0f);
     float dist_to_plane = glm::dot(center - p0, N);
     if (dist_to_plane > radius || dist_to_plane < -radius) {
@@ -32,6 +34,8 @@ namespace physics {
     } else {
       glm::vec3 center_proj = center - (N * dist_to_plane);
 
+      // checks if point projected onto triangle plane is within triangle
+
       glm::vec3 c0 = glm::cross(center_proj - p0, p1 - p0);
       glm::vec3 c1 = glm::cross(center_proj - p1, p2 - p1);
       glm::vec3 c2 = glm::cross(center_proj - p2, p0 - p2);
@@ -39,6 +43,8 @@ namespace physics {
       bool inside = glm::dot(c0, N) <= 0 && glm::dot(c1, N) <= 0 && glm::dot(c2, N) <= 0;
 
       float radius2 = radius * radius;
+
+      // checks if it is on one of the edges of the triangle
 
       bool intersects = false;
 
@@ -101,6 +107,7 @@ namespace physics {
     }
   }
 
+  // i did plan to attempt to implement this on the GPU as well, but doing it on the CPU was complicated enough
   collision_info capsule_mesh_collision_CPU(const ::sdf::Capsule capsule, const ::sdf::Mesh mesh, glm::mat4 transformation) {
     glm::vec3 capsule_normal = glm::normalize(capsule.tip - capsule.base);
     glm::vec3 line_end_offset = capsule_normal * capsule.radius;
@@ -110,7 +117,10 @@ namespace physics {
     collision_info sphere_test;
     sphere_test.depth = 0.0f;
 
-    for (int i = 0; i<mesh.vertices.size(); i+=3) {
+    // loops through mesh vertices, 3 at a time (we are doing triangle collision and triangles have 3 vertices
+
+    for (int i = 0; i<mesh.vertices.size(); i+=3) { // an erroneous <= sign caused reading beyond the bounds of the vector, causing
+                                                    // undefined behaviour which took a while to track down
       //std::cout << i << std::endl;
       glm::vec3 p0 = glm::vec3(transformation * glm::vec4(mesh.vertices[i].position, 1.0f));
       glm::vec3 p1 = glm::vec3(transformation * glm::vec4(mesh.vertices[i+1].position, 1.0f));
@@ -173,13 +183,6 @@ namespace physics {
       collision_info temp_test = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, N);
       //collision_info temp_test2 = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, -N);
 
-      if (p2 == glm::vec3(90, -6, 0) && p1 == glm::vec3(-110, -6, 0) && p0 == glm::vec3(-110, -6, -20)) {
-        //std::cout << p0 << '\n' << p1 << '\n' << p2 << '\n' << sphere_center << '\n' << temp_test.depth << '\n' << temp_test.hit << std::endl;
-        if (temp_test.hit) {
-          //exit(0);
-        }
-      }
-
       if (temp_test.depth > sphere_test.depth) {
         sphere_test = temp_test;
       }
@@ -192,6 +195,7 @@ namespace physics {
 
   }
 
+  // loops through all volumes to collide with all objects
   std::vector<collision_info> capsule_scene_collision(const ::sdf::Capsule capsule, sdf::Scene &scene) {
 
     std::vector<collision_info> collisions;
@@ -215,6 +219,7 @@ namespace physics {
 
   }
 
+  // collide and slide algorithm
   glm::vec3 collision_response(glm::vec3 velocity, const std::vector<collision_info> tests, glm::vec3 up, bool &ground) {
     glm::vec3 normal = glm::vec3(0.0f);
     bool hit = false;

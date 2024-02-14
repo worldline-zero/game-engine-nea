@@ -67,7 +67,7 @@ namespace game {
       }
     }
 
-    std::sort(level_names.begin(), level_names.end());
+    std::sort(level_names.begin(), level_names.end()); // speedy sort, why write my own
 
     gui::Page level_selector;
     gui::Font bitmap_font("./res/bitmap_font1.png");
@@ -79,7 +79,7 @@ namespace game {
     
     unsigned int button_x = padding;
     unsigned int button_y = SCREEN_HEIGHT - button_height - padding - button_height - padding;
-    for (const auto &name : level_names) {
+    for (const auto &name : level_names) { //  programmatically generate buttons
       auto current_level_button_func = std::bind([](GLFWwindow *w, gui::GUI *g, std::string name) -> void {
           level::Level current_level(name);
           current_level.play(w, g);
@@ -92,7 +92,7 @@ namespace game {
 
       unsigned int button_length = (cleaned_name.size() * character_width) + (padding * 2);
 
-      if (button_x + button_length > SCREEN_WIDTH - padding) {
+      if (button_x + button_length > SCREEN_WIDTH - padding) { // determines position of each button
         button_x = padding;
         button_y -= (button_height + padding);
         if (button_y < padding) {
@@ -105,7 +105,8 @@ namespace game {
               glm::vec4(0, 0, 0, 1)
           );
           level_selector << level_count_alert;
-          std::cout << "too many levels!" << std::endl;
+          std::cout << "too many levels!" << std::endl; // unfortunately level count is determined by level name size.
+                                                        // a small price to pay for a pretty(ish) menu
           break;
         }
       }

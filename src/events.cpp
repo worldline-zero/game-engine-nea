@@ -6,7 +6,7 @@ namespace event {
 
   namespace game {
 
-    extern struct rotation_state player_rotation_state;
+    extern struct rotation_state player_rotation_state; // rotation info for player both visible within player source file and here
 
     rotation_state player_rotation_state;
 
@@ -26,7 +26,7 @@ namespace event {
       glm::vec3 right = glm::normalize(glm::cross(forwards, up));
       glm::vec3 left = -right;
 
-      std::array<glm::vec3, 6> directions = { forwards, backwards, up, down, right, left };
+      std::array<glm::vec3, 6> directions = { forwards, backwards, up, down, right, left }; // 6 main directions
 
       p.velocity += key_w(p, s, w, directions);
       p.velocity += key_a(p, s, w, directions);
@@ -50,6 +50,7 @@ namespace event {
     glm::vec3 key_w(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
       glm::vec3 new_velocity = glm::vec3(0.0f);
       if (PRESSED(GLFW_KEY_W ,w)) {
+        // one example of sampling the log curve
         new_velocity = log2f(p.direction_counter[FORWARDS]) * d[FORWARDS] * renderer_state.frame_time;
         if (p.grounded) {
           new_velocity *= 20.0f;
@@ -117,7 +118,7 @@ namespace event {
 
     void key_esc(Player &p, sdf::Scene &s, GLFWwindow *w) {
       if (PRESSED(GLFW_KEY_ESCAPE, w)) {
-        exit(0);
+        exit(0); // quick exit
       }
     }
 
@@ -165,7 +166,7 @@ namespace event {
 
     */
 
-    void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+    void mouse_callback(GLFWwindow *window, double xpos, double ypos) { // reason for extern rotation state
       float xoffset = xpos - player_rotation_state.lastX;
       float yoffset = player_rotation_state.lastY - ypos;
       player_rotation_state.lastX = xpos;
@@ -191,7 +192,7 @@ namespace event {
 
   namespace menu {
 
-    unsigned int input_delay = 0;
+    unsigned int input_delay = 0; // prevents accidental double clicking
 
     void process_input(GLFWwindow *w, gui::GUI *g) {
 

@@ -4,6 +4,8 @@
 
 namespace boost {
 
+  // lexical cast implementation for bool types with std::boolalpha from:
+  // https://stackoverflow.com/questions/4452136/how-do-i-use-boostlexical-cast-and-stdboolalpha-i-e-boostlexical-cast-b
   template<>
   bool lexical_cast<bool, std::string>(const std::string &s) {
     if (s != "true" && s != "false") {
@@ -42,6 +44,7 @@ namespace level {
   }
 
 
+  // this could be more concise but i dont think it matters too much
   sdf::Object parse_object(std::vector<std::string>::iterator &i) {
 
     std::string s;
@@ -250,6 +253,8 @@ namespace level {
       tokens_vector.push_back(*i);
     }
 
+    // store old index to recover in case the iterator is invalidated if vector::insert has to reallocate more space
+    // this behaviour was the cause of a very confusing error
     int old_index = original_file.size() - 1;
 
     original_file.insert(i + 1, tokens_vector.begin(), tokens_vector.end());

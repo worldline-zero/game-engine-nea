@@ -4,86 +4,8 @@ namespace sdf {
 
   extern unsigned int objectID;
 
-  /*
 
-  void bounding_volume::print_children() {
-    std::cout << "\n";
-    for (const auto &[id_, obj_]:children) {
-      std::visit([](auto o){o.details(); std::cout << "\n";}, obj_);
-    }
-  }
-
-  void bounding_volume::render(Shader &s) {
-    for (const auto &[obj_id, obj] : this->children) {
-      std::visit([&s](auto o) { 
-        s.set_matrix<glm::mat4>("model", o.transformation);
-        o.mesh.draw();
-      }, obj);
-    }
-  }
-
-
-
-  AABB::AABB() : center(glm::vec3(0.0f)), half_dimensions(glm::vec3(0.5f)) {
-    glm::mat4 t = glm::translate(glm::mat4(1.0f), center);
-    this->transformation = glm::scale(t, half_dimensions);
-    this->type = AABB_id;
-    this->ID = objectID;
-    objectID++;
-  }
-
-  AABB::AABB(glm::vec3 c, glm::vec3 half_d) : center(c), half_dimensions(half_d) {
-    glm::mat4 t = glm::translate(glm::mat4(1.0f), center);
-    this->transformation = glm::scale(t, half_dimensions);;
-    this->type = AABB_id;
-    this->ID = objectID;
-    objectID++;
-  }
-
-  void AABB::details() {
-    std::cout 
-      << "AABB details:\n"
-      << "ID: " << ID << "\n"
-      << "center: " << center.x << " " << center.y << " " << center.z << "\n"
-      << "half dimensions: " << half_dimensions.x << " " << half_dimensions.y << " " << half_dimensions.z << std::endl;
-  }
-
-  float AABB::dist(glm::vec3 pos) {
-    glm::vec3 q = glm::abs(pos - this->center) - this->half_dimensions;
-    return glm::length(glm::max(q, 0.0f)) + std::min(std::max(q.x, std::max(q.y, q.z)), 0.0f);
-  }
-
-
-
-  bounding_sphere::bounding_sphere() : center(glm::vec3(0.0f)), radius(0.5f) {
-    glm::mat4 t = glm::translate(glm::mat4(1.0f), center);
-    this->transformation = glm::scale(t, glm::vec3(radius));
-    this->type = bounding_sphere_id;
-    this->ID = objectID;
-    objectID++;
-  }
-
-  bounding_sphere::bounding_sphere(glm::vec3 c, float r) : center(c), radius(r) {
-    glm::mat4 t = glm::translate(glm::mat4(1.0f), center);
-    this->transformation = glm::scale(t, glm::vec3(r));
-    this->type = bounding_sphere_id;
-    this->ID = objectID;
-    objectID++;
-  }
-
-  void bounding_sphere::details() {
-    std::cout
-      << "Bounding Sphere details:\n"
-      << "ID: " << ID << "\n"
-      << "center: " << center.x << " " << center.y << " " << center.z << "\n"
-      << "radius: " << radius << std::endl;
-  }
-
-  float bounding_sphere::dist(glm::vec3 pos) {
-    return glm::length(pos - this->center) - this->radius;
-  }
-  */
-
+  // AABB is an abstract object and has no effect on how the program functions. it is merely a container for grouping purpsoes
   AABB::AABB(glm::vec3 p, glm::vec3 d) :
     position(p),
     dimensions(d)
@@ -100,13 +22,13 @@ namespace sdf {
   }
 
   void AABB::render(Shader &s, Shader &l, glm::vec3 position) const {
-    std::map<float, sdf::Object> sorted_transparent_objects;
+    std::map<float, sdf::Object> sorted_transparent_objects; // must be rendered in order to make transparaency work
     for (const auto &[obj_id, obj]:this->children) {
-      if (obj.color.w < 255) {
+      if (obj.color.w < 255) { // if it isnt opaque
         float distance_to_object = glm::length(position - obj.position);
-        sorted_transparent_objects.insert(std::make_pair(distance_to_object, obj));
+        sorted_transparent_objects.insert(std::make_pair(distance_to_object, obj)); // automatically sorted by distance
       } else {
-        if (obj.light_intensity > 0.0f) {
+        if (obj.light_intensity > 0.0f) { // if its a light
           l.use();
           l.set_matrix<glm::mat4>("model", obj.transformation);
           l.set_vector<glm::vec4>("input_color", obj.color / glm::vec4(255.0f));
@@ -119,7 +41,7 @@ namespace sdf {
       }
     }
 
-    for (const auto &[t_id, tp_obj]:sorted_transparent_objects) {
+    for (const auto &[t_id, tp_obj]:sorted_transparent_objects) { // draw transparent objects in order
 
       if (tp_obj.light_intensity > 0.0f) {
         l.use();
@@ -130,7 +52,7 @@ namespace sdf {
         s.set_matrix<glm::mat4>("model", tp_obj.transformation);
         s.set_vector<glm::vec4>("input_color", tp_obj.color / glm::vec4(255.0f));
       }
-      tp_obj.mesh.draw();
+      tp_obj.mesh.draw(); 
 
     }
   }

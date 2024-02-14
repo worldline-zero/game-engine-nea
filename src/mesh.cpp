@@ -1,6 +1,6 @@
 #include "../inc/mesh.hpp"
 
-std::ostream &operator<<(std::ostream &out, const glm::vec3 &vec) {
+std::ostream &operator<<(std::ostream &out, const glm::vec3 &vec) { // for debugging convenience
   out << "{ " << vec.x << " " << vec.y << " " << vec.z << " }";
   return out;
 }
@@ -11,7 +11,7 @@ namespace sdf {
 
   Vertex::Vertex(glm::vec3 p, glm::vec3 n, glm::vec2 t) : position(p), normal(n), uv(t) {}
 
-  Mesh::Mesh(const std::string mesh_path) {
+  Mesh::Mesh(const std::string mesh_path) { // parses a wavefront.obj file
     
     std::ifstream obj_file(mesh_path);
 
@@ -84,7 +84,7 @@ namespace sdf {
 
   }
 
-  void Mesh::generate_VAO() {
+  void Mesh::generate_VAO() { // stores vertex array object within mesh object
 
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);

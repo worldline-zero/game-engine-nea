@@ -20,7 +20,7 @@ namespace event {
   }
 
   void timed_job::add_to(std::map<std::string, timed_job> &jobs, std::string name) {
-    this->start_time = std::chrono::high_resolution_clock::now();
+    this->start_time = std::chrono::high_resolution_clock::now(); // same effect as restarting
     jobs.insert(std::make_pair(name, *this));
   }
     
@@ -40,14 +40,14 @@ namespace event {
     }
   }
 
-  void timed_job::run() {
+  void timed_job::run() { // run behaviour, with updated time
     this->job(
         std::chrono::duration_cast<std::chrono::duration<unsigned int, std::milli>>(std::chrono::high_resolution_clock::now() - this->start_time).count(),
         this->job_duration_ticks
         );
   }
 
-  void timed_job::restart() {
+  void timed_job::restart() { // sets the start time to now
     this->start_time = std::chrono::high_resolution_clock::now();
   }
 
@@ -57,7 +57,7 @@ namespace event {
       if (i->second.check_expired() == false) {
         i->second.run();
       } else {
-        i->second.run();
+        i->second.run(); // runs once after expiring, then is removed from list
         i = all_active_jobs.erase(i);
       }
     }

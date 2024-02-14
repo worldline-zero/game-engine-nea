@@ -1,7 +1,7 @@
 #include "../inc/shader.hpp"
 #include "../inc/scene.hpp"
 
-Shader::Shader(const char *compute_path) {
+Shader::Shader(const char *compute_path) { // we dont actually use compute shaders at all, but i thought it might be useful to have around
 
   std::string compute_src;
   std::ifstream compute_file(compute_path);

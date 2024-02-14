@@ -21,7 +21,7 @@ int main() {
 
   GLFWwindow* window = loader::load_gl();
   glfwSetCursorPosCallback(window, event::game::mouse_callback);
-  glfwSwapInterval(1);
+  glfwSwapInterval(1); // capped frame rate at refresh rate (0 means uncapped)
 
   if (window == NULL) {
     std::cerr << "error: window not initialised" << std::endl;
@@ -46,7 +46,7 @@ int main() {
 
     event::menu::process_input(window, &menu);
 
-    menu.render();
+    menu.render(); // all of the actual game is accessed via this method. keeps the main function concise (unlike in previous iterations)
 
     glfwSwapBuffers(window);
     glfwPollEvents();

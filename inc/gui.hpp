@@ -22,7 +22,7 @@ namespace gui {
 #define SIZE 0
 #define NDC 1
 
-  template <unsigned int T>
+  template <unsigned int T> // handy system to convert between pixels and NDC / size
   glm::vec2 pixel_cast(unsigned int x, unsigned int y) {
 
     glm::vec2 pixels((float)x, (float)y);

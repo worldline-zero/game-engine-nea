@@ -51,12 +51,15 @@ void Player::update_bounds(unsigned int ct, unsigned int tt) {
 }
 
 void Player::update_position(sdf::Scene scene) {
+
+  this->fov = 80.0f + 10 * (glm::length(this->velocity * glm::vec3(1.0f, 0.0f, 1.0f)) / 30.0f);
+  
   this->previous_position = this->position;
 
   this->velocity = physics::calculate_drag(this->velocity,
       this->grounded, std::max(
         std::max(this->direction_counter[FORWARDS], this->direction_counter[BACKWARDS]),
-        std::max(this->direction_counter[LEFT], this->direction_counter[RIGHT])));
+        std::max(this->direction_counter[LEFT], this->direction_counter[RIGHT]))); // second parameter unused currently
 
   this->velocity = this->velocity - glm::vec3(0.0f, physics::calculate_gravity(this->direction_counter[DOWN]), 0.0f);
 
@@ -106,9 +109,12 @@ void Player::update_position(sdf::Scene scene) {
 
 
   if (renderer_state.frame_time > 0.00001) {
-    this->velocity = glm::vec3(new_velocity / renderer_state.frame_time);
+    this->velocity = glm::vec3(new_velocity / renderer_state.frame_time); // correctly updates velocity post collison, allowing player to
+                                                                          // bounce and off object while maintaining speed
     this->velocity += extra_acceleration;
   }
+
+  //this->fov = 80.0f + 10 * (glm::length(this->velocity * glm::vec3(1.0f, 0.0f, 1.0f)) / 30.0f);
 
   //std::cout << object_velocity << std::endl;
   

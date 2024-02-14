@@ -2,6 +2,7 @@
 
 extern struct renderer_state_container renderer_state;
 
+// sdf namespace is because this renderer was originally going to be implemented using ray marching and signed distance functions
 namespace sdf {
 
   void Scene::add_volume(sdf::AABB volume) {

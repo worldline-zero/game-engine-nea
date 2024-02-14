@@ -47,6 +47,7 @@ namespace level {
       bool completed;
 
       unsigned int time_running;
+      unsigned int time_limit;
 
       std::map<std::string, event::timed_job> jobs;
 
@@ -88,7 +89,7 @@ namespace level {
               [](unsigned int ct, unsigned int tt, Level *l) {
                 std::cout << ct << std::endl;
                 l->time_running = ct;
-                if (ct > 50000) {
+                if (ct > l->time_limit) {
                   l->running = false;
                 }
               };

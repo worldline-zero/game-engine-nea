@@ -13,7 +13,7 @@ namespace level {
     std::vector<std::string> tokens_vector;
 
     for (Tokenizer::iterator i = tokens.begin(); i!=tokens.end(); i++) {
-      tokens_vector.push_back(*i);
+      tokens_vector.push_back(*i); // allows edits to be made easily when including new level file
     }
 
     for (std::vector<std::string>::iterator i = tokens_vector.begin(); i!=tokens_vector.end(); i++) {
@@ -28,6 +28,8 @@ namespace level {
     this->spawn = parse_vec3(i);
     i++;
     this->kill_floor = boost::lexical_cast<float>(*(++i));
+    i++;
+    this->time_limit = boost::lexical_cast<unsigned int>(*(++i));
 
     flags_parser fp;
 
@@ -63,7 +65,7 @@ namespace level {
 
     }
 
-    this->scene.add_volume(current_bounds.value());
+    this->scene.add_volume(current_bounds.value()); // finishes the currently bound AABB and adds to scene
 
   }
 
@@ -78,7 +80,7 @@ namespace level {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     Shader object_shader("./shader/object_vertex.glsl", "./shader/object_fragment.glsl");
-    Shader light_shader("./shader/light_vertex.glsl", "./shader/light_fragment.glsl");
+    Shader light_shader("./shader/light_vertex.glsl", "./shader/light_fragment.glsl"); // lights should not use the same lighing model
 
     std::vector<struct light_info> scene_lights;
 
@@ -94,7 +96,7 @@ namespace level {
     }
 
     const unsigned int light_ssbo_binding_point = 4;
-    SSBO<struct light_info> light_ssbo(scene_lights, light_ssbo_binding_point);
+    SSBO<struct light_info> light_ssbo(scene_lights, light_ssbo_binding_point); // sends light data to object fragment shader
     
     Player player(this->spawn);
     this->running = true;
@@ -107,7 +109,7 @@ namespace level {
 
     while (this->running) {
 
-      player.update_dir(1, 2);
+      player.update_dir(1, 2); // parameters irrelevant
 
       event::game::process_input(player, this->scene, window);
       this->scene.update();
@@ -132,7 +134,7 @@ namespace level {
 
       this->scene.render(object_shader, light_shader, player.position);
 
-      std::cout << player.velocity << std::endl; 
+      // std::cout << player.velocity << std::endl; // debugging purposes
 
       render_fps_counter(bitmap_font);
       render_timer(bitmap_font, this->time_running);
@@ -143,7 +145,7 @@ namespace level {
       glfwPollEvents();
     }
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // returning to menu, so activate mouse again
 
     if (this->completed && this->time_running != 0) {
       *g << std::make_pair("success_screen", game::get_success_screen(g, window, this->time_running));
