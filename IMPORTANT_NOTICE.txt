@@ -10,8 +10,13 @@ Other libraries used include:
 GLFW3 from https://www.glfw.org/
 GLM from https://github.com/g-truc/glm
 
-Additionally, any #include where the file name is surrounded by angular braces ( <filename> vs "filename" ) is not my own work. This
-includes but is not limited to:
+Additionally, any #include where the file name is surrounded by angular braces and NOT quotes ( <filename> vs "filename" ) is not my own
+work. This includes but is not limited to:
 
-C++ standard library headers
-Boost library headers ( e.g: boost/lexical_cast.hpp, boost/tokenizer.hpp )
+C++ standard library headers ( e.g: <iostream>, <vector> )
+Boost library headers ( e.g: <boost/lexical_cast.hpp>, <boost/tokenizer.hpp> )
+
+Comments within source or header files will also detail parts which are not my own work, or those that were copied directly or without any
+significant change from another source.
+
+All of the work which will be printed off with the rest of my documentation is my own work unless stated otherwise in comments.

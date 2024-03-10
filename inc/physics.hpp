@@ -18,8 +18,9 @@
  *
  * (includes the functions:
  *  - collision_info sphere_triangle_collision(glm::vec3 center, float radius, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 N);
- *  - closest sphere in capsule section from
- *    collision_info capsule_mesh_collision_CPU(const ::sdf::Capsule capsule, const ::sdf::Mesh mesh, const glm::mat4 transformation);
+ *  - collision_info capsule_mesh_collision_CPU(const ::sdf::Capsule capsule, const ::sdf::Mesh mesh, const glm::mat4 transformation);
+ *  - glm::vec3 closest_point_on_line(glm::vec3 p0, glm::vec3 p1, glm::vec3 point_ref)
+ *  - glm::vec3 tri_plane_normal(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
  *    )
  *
  * and Collision response implementation from 
@@ -33,10 +34,11 @@
  * (includes:
  *   glm::vec3 collision_response(glm::vec3 velocity, const std::vector<collision_info> tests, glm::vec3 up, bool &grounded);
  *   )
- *
- * My implementation is not copied from these sources word for word (as their own implementations are in different languages,
- * and not directly applicable to my own codebase) but are inspired by them,
- * and so they should take credit for the details of the implementation and description of methods involved.
+ * 
+ * It is important to refer to the sources above for the implementations of the functions listed as that is the main source of inspiration
+ * and guidance for this system which I would not have been able to complete without them. I have not copied directly, especially
+ * considering the implementations referenced are written in a different programming language and the implementations themselves are not in
+ * any way directly applicable to my own code base.
  *
  */
 

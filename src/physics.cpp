@@ -121,7 +121,6 @@ namespace physics {
 
     for (int i = 0; i<mesh.vertices.size(); i+=3) { // an erroneous <= sign caused reading beyond the bounds of the vector, causing
                                                     // undefined behaviour which took a while to track down
-      //std::cout << i << std::endl;
       glm::vec3 p0 = glm::vec3(transformation * glm::vec4(mesh.vertices[i].position, 1.0f));
       glm::vec3 p1 = glm::vec3(transformation * glm::vec4(mesh.vertices[i+1].position, 1.0f));
       glm::vec3 p2 = glm::vec3(transformation * glm::vec4(mesh.vertices[i+2].position, 1.0f));
@@ -135,9 +134,6 @@ namespace physics {
       } else {
         line_plane_intersection = p0;
       }
-
-      //bool parallel = (glm::dot(N, capsule_normal) == 0);
-      //std::cout << "parallel? " << parallel << std::endl;
 
       glm::vec3 c0 = glm::cross(line_plane_intersection - p0, p1 - p0);
       glm::vec3 c1 = glm::cross(line_plane_intersection - p1, p2 - p1);
@@ -171,23 +167,11 @@ namespace physics {
 
       glm::vec3 sphere_center = closest_point_on_line(capsule_A, capsule_B, reference_point);
 
-      //std::cout << p0 << '\n' << p1 << '\n' << p2 << '\n' << sphere_center << '\n' << std::endl;
-
-
-      //std::cout << "current sphere center: " << sphere_center.x << " " << sphere_center.y << " " << sphere_center.z << std::endl;
-      //std::cout << "current triangle coords:\n"
-      //  << "p0: " << p0.x << " " << p0.y << " " << p0.z << "\n"
-      //  << "p1: " << p1.x << " " << p1.y << " " << p1.z << "\n"
-      //  << "p2: " << p2.x << " " << p2.y << " " << p2.z << "\n";
-
       collision_info temp_test = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, N);
-      //collision_info temp_test2 = sphere_triangle_collision(sphere_center, capsule.radius, p0, p1, p2, -N);
 
       if (temp_test.depth > sphere_test.depth) {
         sphere_test = temp_test;
       }
-        
-      //std::cout << std::endl;
 
     } // for loop end
 
@@ -234,8 +218,6 @@ namespace physics {
       }
     }
 
-    //velocity += collison_velocity;
-
     if (hit == true) {
       //std::cout << normal << std::endl;
       if (glm::length(normal) <= EPSILON) {
@@ -265,9 +247,7 @@ namespace physics {
         ground = false;
       }
 
-      std::cout << ground << std::endl;
-
-      return reduced_velocity + leftover_velocity;// + (std::abs(glm::dot(velocity, normal)) * (glm::normalize(reduced_velocity + leftover_velocity) + normal) * glm::length(reduced_velocity + leftover_velocity));
+      return reduced_velocity + leftover_velocity;
 
     } else {
 

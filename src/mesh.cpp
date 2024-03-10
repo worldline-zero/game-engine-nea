@@ -5,6 +5,9 @@ std::ostream &operator<<(std::ostream &out, const glm::vec3 &vec) { // for debug
   return out;
 }
 
+/* wavefront.obj parser implementation inspired by http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+ */
+
 namespace sdf {
 
   Vertex::Vertex() : position(glm::vec3(0.0f)), normal(glm::vec3(0.0f)), uv(glm::vec2(0.0f)) {}
