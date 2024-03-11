@@ -6,7 +6,6 @@ namespace event {
 
   timed_job::timed_job(std::function<void(unsigned int, unsigned int)> job_param, const int N) :
     start_time(std::chrono::high_resolution_clock::now()),
-    //job_duration(std::chrono::duration<unsigned int, std::milli>(N)),
     job_duration_ticks(N),
     job(job_param) {
     
@@ -29,7 +28,6 @@ namespace event {
     if (!run_forever) {
       auto current_time = std::chrono::high_resolution_clock::now();
       unsigned int total_time_elapsed = std::chrono::duration_cast<std::chrono::duration<unsigned int, std::milli>>(current_time - this->start_time).count();
-      //std::cout << total_time_elapsed << std::endl;
       if (total_time_elapsed >= this->job_duration.count()) {
         return true;
       } else {

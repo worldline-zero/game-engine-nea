@@ -37,13 +37,6 @@ void Player::update_dir(unsigned int ct, unsigned int tt) {
   new_facing.y = sin(glm::radians(event::game::player_rotation_state.pitch));
   new_facing.z = sin(glm::radians(event::game::player_rotation_state.yaw)) * cos(glm::radians(event::game::player_rotation_state.pitch));
   this->facing = glm::normalize(new_facing);
-  /*
-  glm::vec3 new_body;
-  new_body.x = cos(glm::radians(event::game::player_rotation_state.yaw));
-  new_body.y = 0.0f;
-  new_body.z = sin(glm::radians(event::game::player_rotation_state.yaw));
-  this->direction = glm::normalize(new_body);
-  */
 }
 
 void Player::update_bounds(unsigned int ct, unsigned int tt) {
@@ -62,12 +55,6 @@ void Player::update_position(sdf::Scene scene) {
         std::max(this->direction_counter[LEFT], this->direction_counter[RIGHT]))); // second parameter unused currently
 
   this->velocity = this->velocity - glm::vec3(0.0f, physics::calculate_gravity(this->direction_counter[DOWN]), 0.0f);
-
-  /*
-  if (glm::length(this->velocity) > this->max_speed) {
-    this->velocity = this->velocity * (this->max_speed / glm::length(this->velocity));
-  }
-  */
 
   if (!this->grounded) {
     this->direction_counter[DOWN]++;
@@ -90,7 +77,7 @@ void Player::update_position(sdf::Scene scene) {
   for (const auto &ci:collision_tests) {
     if (ci.hit) {
       extra_acceleration += ci.acceleration;
-      object_velocity += ci.object_velocity;// * ((this->position + new_velocity) - ci.object_position);
+      object_velocity += ci.object_velocity;
     }
   }
   object_velocity *= renderer_state.frame_time;
@@ -113,10 +100,6 @@ void Player::update_position(sdf::Scene scene) {
                                                                           // bounce and off object while maintaining speed
     this->velocity += extra_acceleration;
   }
-
-  //this->fov = 80.0f + 10 * (glm::length(this->velocity * glm::vec3(1.0f, 0.0f, 1.0f)) / 30.0f);
-
-  //std::cout << object_velocity << std::endl;
   
   this->position += this->velocity * renderer_state.frame_time + object_velocity;
   this->previous_bounds = this->player_bounds;

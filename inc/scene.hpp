@@ -15,20 +15,6 @@ namespace sdf {
 
     public:
 
-      //using volume_type = std::variant<AABB, bounding_sphere>;
-      //using volume_container = std::map<unsigned int, volume_type>;
-      //using volume_child_pair = std::pair<std::optional<volume_type>&, std::optional<bounding_volume::child_type>&>;
-
-      //volume_container volumes_old;
-
-      /*
-      template <class T>
-      void add_volume(const T volume) {
-        volume_type new_volume = volume;
-        volumes_old.insert(std::make_pair(volume.ID, new_volume));
-      }
-      */
-
       std::map<unsigned int, sdf::AABB> volumes;
 
       void add_volume(sdf::AABB volume);

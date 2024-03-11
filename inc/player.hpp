@@ -49,7 +49,7 @@ class Player {
 
     glm::vec3 position; // player's current position
     glm::vec3 previous_position; // players position last frame
-    glm::vec3 up; // the up vector. probably could be const/literal but incase i decide to do wacky shit with gravity in the future ill keep it
+    glm::vec3 up; // the up vector. probably could be const/literal but incase i decide to do wacky stuff with gravity in the future ill keep it
 
     sdf::Capsule player_bounds;
     sdf::Capsule previous_bounds;

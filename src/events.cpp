@@ -35,16 +35,6 @@ namespace event {
       p.velocity += key_space(p, s, w, directions);
       key_esc(p, s, w);
 
-      //std::cout << p.velocity << std::endl;
-     
-      /*
-      if (glm::length(p.velocity) > p.max_speed) {
-        p.velocity = (p.velocity * (p.max_speed / glm::length(p.velocity)));
-      }
-      */
-
-      //std::cout << glm::length(p.velocity) << std::endl;
-
     }
 
     glm::vec3 key_w(Player &p, sdf::Scene &s, GLFWwindow *w, std::array<glm::vec3, 6> d) {
@@ -122,49 +112,6 @@ namespace event {
       }
     }
 
-/*
-
-    void key_esc(Player &p, sdf::Scene &s, GLFWwindow *w) {
-      glfwSetWindowShouldClose(w, true);
-    }
-
-    void key_w(Player &p, sdf::Scene &s, GLFWwindow *w) {
-      glm::vec3 direction = glm::normalize(glm::vec3(p.facing.x, 0.0f, p.facing.y));
-      if (glm::length(p.velocity) < p.max_speed) {
-        p.velocity += p.direction;
-      }
-    }
-
-    void key_a(Player &p, sdf::Scene &s, GLFWwindow *w) {
-      glm::vec3 direction = glm::normalize(glm::vec3(p.facing.x, 0.0f, p.facing.y));
-      if (glm::length(p.velocity) < p.max_speed) {
-        p.velocity -= glm::normalize(glm::cross(glm::normalize(p.direction), p.up)) * glm::length(p.velocity);
-      }
-    }
-
-    void key_s(Player &p, sdf::Scene &s, GLFWwindow *w) {
-      glm::vec3 direction = glm::normalize(glm::vec3(p.facing.x, 0.0f, p.facing.y));
-      glm::vec3 old = p.position;
-      p.position -= p.velocity;
-      p.position.y = old.y;
-    }
-
-    void key_d(Player &p, sdf::Scene &s, GLFWwindow *w) {
-      glm::vec3 direction = glm::normalize(glm::vec3(p.facing.x, 0.0f, p.facing.y));
-      glm::vec3 old = p.position;
-      p.position += glm::normalize(glm::cross(glm::normalize(p.velocity), p.up)) * glm::length(p.velocity);
-      p.position.y = old.y;
-    }
-
-    void key_space(Player &p, sdf::Scene &s, GLFWwindow *w) {
-      p.position.y += glm::length(p.velocity);
-    }
-
-    void key_lshift(Player &p, sdf::Scene &s, GLFWwindow *w) {
-      p.position.y -= glm::length(p.velocity);
-    }
-
-    */
 
     void mouse_callback(GLFWwindow *window, double xpos, double ypos) { // reason for extern rotation state
       float xoffset = xpos - player_rotation_state.lastX;

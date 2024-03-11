@@ -13,7 +13,7 @@ namespace level {
     std::vector<std::string> tokens_vector;
 
     for (Tokenizer::iterator i = tokens.begin(); i!=tokens.end(); i++) {
-      tokens_vector.push_back(*i); // allows edits to be made easily when including new level file
+      tokens_vector.push_back(*i); // makes including files easier to implement
     }
 
     for (std::vector<std::string>::iterator i = tokens_vector.begin(); i!=tokens_vector.end(); i++) {
@@ -88,7 +88,7 @@ namespace level {
       for (const auto &[oid, obj] : volume.children) {
         if (obj.light_intensity > 0.0f) {
           struct light_info light;
-          light.color_and_intensity = glm::vec4(obj.color.x, obj.color.y, obj.color.z, obj.light_intensity) / glm::vec4(glm::vec3(255.0f), 1.0f);
+          light.color_and_intensity = glm::vec4(obj.color.x, obj.color.y, obj.color.z, obj.light_intensity) / glm::vec4(glm::vec3(255.0f), 1.0f); // bring in range 0.0 to 1.0
           light.position = glm::vec4(obj.position.x, obj.position.y, obj.position.z, 1.0f);
           scene_lights.push_back(light);
         }
