@@ -43,10 +43,11 @@ int main() {
 
     glClearColor(0.3f, 0.1f, 0.6f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ 
+    // all of the actual game is accessed via this function. keeps the main function concise (unlike in previous iterations)
+    event::menu::process_input(window, &menu); 
 
-    event::menu::process_input(window, &menu);
-
-    menu.render(); // all of the actual game is accessed via this method. keeps the main function concise (unlike in previous iterations)
+    menu.render();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
