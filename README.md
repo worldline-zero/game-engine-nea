@@ -1,3 +1,3 @@
-# game engine source
+# Game engine source
 
-this repository contains the source code of my game engine, which will be used to create my nea.
+Source code for my game engine (and game) written using C++ and OpenGL, for my computer science A-Level NEA.
